@@ -1,0 +1,6 @@
+; DLL_EtherCAT_Axis_Control.def : 宣告 DLL 的模組參數。
+
+LIBRARY      "DLL_EtherCAT_Axis_Control"
+
+EXPORTS
+    ; 明確匯出可置於此

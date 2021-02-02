@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "APP_EtherCAT_Axis_Control", "APP_EtherCAT_Axis_Control\APP_EtherCAT_Axis_Control.vcproj", "{E1C22165-C780-42D3-A9CF-E9419DB2751D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DLL_EtherCAT_Axis_Control", "DLL_EtherCAT_Axis_Control\DLL_EtherCAT_Axis_Control.vcproj", "{0597F077-71D7-40FD-B5E2-0517C7E0E966}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_x64|Win32 = Debug_x64|Win32
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1C22165-C780-42D3-A9CF-E9419DB2751D}.Debug_x64|Win32.ActiveCfg = Debug|Win32
+		{E1C22165-C780-42D3-A9CF-E9419DB2751D}.Debug_x64|Win32.Build.0 = Debug|Win32
+		{E1C22165-C780-42D3-A9CF-E9419DB2751D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E1C22165-C780-42D3-A9CF-E9419DB2751D}.Debug|Win32.Build.0 = Debug|Win32
+		{E1C22165-C780-42D3-A9CF-E9419DB2751D}.Release|Win32.ActiveCfg = Release|Win32
+		{E1C22165-C780-42D3-A9CF-E9419DB2751D}.Release|Win32.Build.0 = Release|Win32
+		{0597F077-71D7-40FD-B5E2-0517C7E0E966}.Debug_x64|Win32.ActiveCfg = Debug_x64|Win32
+		{0597F077-71D7-40FD-B5E2-0517C7E0E966}.Debug_x64|Win32.Build.0 = Debug_x64|Win32
+		{0597F077-71D7-40FD-B5E2-0517C7E0E966}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0597F077-71D7-40FD-B5E2-0517C7E0E966}.Debug|Win32.Build.0 = Debug|Win32
+		{0597F077-71D7-40FD-B5E2-0517C7E0E966}.Release|Win32.ActiveCfg = Release|Win32
+		{0597F077-71D7-40FD-B5E2-0517C7E0E966}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
