@@ -148,3 +148,9 @@ HCURSOR CAPP_EtherCAT_Axis_ControlDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
+{
+	m_bECATinitFlag = false;
+
+	
+}
