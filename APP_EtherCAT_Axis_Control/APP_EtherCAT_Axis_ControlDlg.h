@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include "PdoDefine.h"
+#include "EcmUsrDriver.h"
+#include "EcmDriver.h"
 
 // CAPP_EtherCAT_Axis_ControlDlg dialog
 class CAPP_EtherCAT_Axis_ControlDlg : public CDialog
@@ -31,5 +34,7 @@ protected:
 
 public:
 	bool m_bECATinitFlag;
-	void EtherCAT_Init();
+	int SetPdoConfTbl(PDO_CONFIG_HEAD *pConfig, uint8_t u8PdoIdx, uint8_t u8TblIdx, uint16_t u16Idx, uint8_t u8SubIdx, uint8_t u8BitSize);
+	int SdoGetTarPos();
+	int EtherCAT_Init();
 };
