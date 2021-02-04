@@ -26,17 +26,19 @@
 #define RXPDO_SIZE_BYTES		6
 #define TXPDO_SIZE_BYTES		6
 
-typedef struct __attribute__((__packed__)) _rxpdo_st_def_t
+#pragma pack(push,1)
+typedef struct _rxpdo_st_def_t
 {
 	uint16_t u16CtlWord;
 	int32_t n32TarPos;
 }RXPDO_ST_DEF_T;
 
-typedef struct __attribute__((__packed__)) _txpdo_st_def_t
+typedef struct _txpdo_st_def_t
 {
 	uint16_t u16StaWord;
 	int32_t n32AcuPos;
 	uint32_t u32DigInputs;
 }TXPDO_ST_DEF_T;
+#pragma pack(pop)
 
 #endif

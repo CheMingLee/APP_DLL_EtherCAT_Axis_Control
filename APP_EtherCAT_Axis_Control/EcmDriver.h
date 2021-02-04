@@ -24,9 +24,9 @@ extern "C"
 #endif
 #include <stdint.h>
     
-#define ECM_PACK_BEGIN
-#define ECM_PACK  __attribute__((__packed__))
-#define ECM_PACK_END
+// #define ECM_PACK_BEGIN
+// #define ECM_PACK  __attribute__((__packed__))
+// #define ECM_PACK_END
 
 #define CIA402_SW_STATE_MASK			0x6F
 #define CIA402_SW_NOTREADYTOSWITCHON	0x00
@@ -230,8 +230,9 @@ typedef enum {
 	ECM_RAW_API_ARMW = 13,
 	ECM_RAW_API_FRMW = 14,
 } ecm_datagram_commad_t;
-ECM_PACK_BEGIN
-typedef struct ECM_PACK ec_dcsync_h
+
+#pragma pack(push,1)
+typedef struct ec_dcsync_h
 {
 	uint8_t Slave;
 	uint8_t Paddle;
@@ -241,9 +242,8 @@ typedef struct ECM_PACK ec_dcsync_h
 	uint32_t CyclTime1;
 	int32_t CyclShift;
 } EC_DCSYNC_H;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK sdo_write_t
+
+typedef struct sdo_write_t
 {
 	uint8_t OP;
 	uint8_t Slave;
@@ -254,17 +254,15 @@ typedef struct ECM_PACK sdo_write_t
 	int Timeout;
 	uint8_t Data[256];
 }SDO_CMD_HEAD;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK obj_entry_t
+
+typedef struct obj_entry_t
 {
 	uint8_t u8BitSize;
 	uint8_t u8SubIdx;
 	uint16_t u16Idx;
 } OBJ_ENTRY_T;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK pdo_config_t
+
+typedef struct pdo_config_t
 {
 	uint8_t Slave;
 	uint8_t PDOCnt;
@@ -273,9 +271,8 @@ typedef struct ECM_PACK pdo_config_t
 	uint16_t ObjsCnt[3];
 	OBJ_ENTRY_T Table[3][8];
 } PDO_CONFIG_HEAD;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK ecm_eeprom_req_t
+
+typedef struct ecm_eeprom_req_t
 {
 	uint16_t OP;
 	uint16_t slave;
@@ -283,9 +280,8 @@ typedef struct ECM_PACK ecm_eeprom_req_t
 	uint16_t data;
 	uint32_t timeout;
 } ECM_EEPROM_REQ_T;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK spi_cmd_header
+
+typedef struct spi_cmd_header
 {
 	uint32_t u32StartWord;
 	uint8_t u8Data[4];
@@ -299,16 +295,14 @@ typedef struct ECM_PACK spi_cmd_header
 	uint8_t u8GpioIntClr[2];
 	uint8_t uGpio[2];
 } SPI_CMD_HEADER;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK spi_cmd_package
+
+typedef struct spi_cmd_package
 {
 	SPI_CMD_HEADER Head;
 	uint8_t Data[];
 } SPI_CMD_PACKAGE;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK spi_ret_header
+
+typedef struct spi_ret_header
 {
 	uint32_t u32StartWord;
 	uint8_t u8CrcErrCnt;
@@ -326,33 +320,29 @@ typedef struct ECM_PACK spi_ret_header
 	uint8_t u8GpioIntFlag[2];
 	uint8_t u8Gpio[2];
 } SPI_RET_HEADER;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK spi_ret_package
+
+typedef struct spi_ret_package
 {
 	SPI_RET_HEADER Head;
 	uint8_t Data[];
 } SPI_RET_PACKAGE;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK _cia402_api_param_
+
+typedef struct _cia402_api_param_
 {
 	uint8_t Ctrl;
 	uint8_t TargetState;
 	uint8_t ContrlWordOffset;
 	uint8_t StatusWordOffset;
 } CIA402_API_PARAM;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK _ecm_pdo_ext_data_
+
+typedef struct _ecm_pdo_ext_data_
 {
 	uint16_t u16WKC;
 	uint8_t u8Idx;
 	uint8_t u8Reserve;
 } ECM_PDO_EXT_DATA;
-ECM_PACK_END
-ECM_PACK_BEGIN
-typedef struct ECM_PACK ec_raw_api_param_h
+
+typedef struct ec_raw_api_param_h
 {
 	uint16_t OP;
 	uint16_t length;
@@ -363,7 +353,7 @@ typedef struct ECM_PACK ec_raw_api_param_h
 	int wkc;
 	uint8_t data[256];
 } EC_RAW_API_PARAM_H;
-ECM_PACK_END
+#pragma pack(pop)
 
 #ifdef __cplusplus
 }

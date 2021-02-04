@@ -61,3 +61,31 @@ BOOL CDLL_EtherCAT_Axis_ControlApp::InitInstance()
 
 	return TRUE;
 }
+
+// DLL
+
+DllExport void InitialDev()
+{
+	g_DevPMC6.Dev_Open();
+}
+
+DllExport void CloseDev()
+{
+	g_DevPMC6.Dev_Close();
+}
+DllExport void UserSpiDataExchange(uint8_t *pTxBuf, uint8_t *pRxBuf, uint32_t u32PackSize)
+{
+	uint16_t usCmd;
+	char *pData;
+	uint16_t usSize;
+	
+	usCmd = CMD_USERSPIDATAEXCHANGE;
+	pData = (char *)pTxBuf;
+	usSize = sizeof(u32PackSize);
+
+	BOOL bRet = PCI_Write_Datas(usCmd, pData, usSize);
+	if (bRet)
+	{
+		memcpy(pRxBuf, g_DevPMC6.m_ReadBuffer, sizeof(u32PackSize));
+	}
+}

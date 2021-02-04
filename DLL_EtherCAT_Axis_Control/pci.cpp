@@ -522,8 +522,21 @@ WORD PCI_Read(BYTE* data_buf,DWORD data_count)
 BOOL PCI_CheckReplay(unsigned short usCmd)
 {
 	BOOL bReBack;
-
 	bReBack = FALSE;
+
+	switch (usCmd)
+	{
+		case 1:
+		{
+			bReBack = true;
+			break;
+		}
+		
+		default:
+		{
+			break;
+		}
+	}
 	
 	return bReBack;
 }
