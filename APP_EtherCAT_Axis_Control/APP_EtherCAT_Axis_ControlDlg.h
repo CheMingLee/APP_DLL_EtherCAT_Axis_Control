@@ -10,7 +10,11 @@
 // DLL function signature
 typedef void (*FuncDevInit)();
 typedef void (*FuncDevClose)();
-typedef void (*FuncUserSpiDataExchange)(uint8_t *, uint8_t *, uint32_t);
+typedef int (*FuncSetDataSize)(uint32_t);
+typedef int (*FuncSetTxData)(uint8_t *, uint32_t, int);
+typedef int (*FuncSetSend)();
+typedef int (*FuncGetBusy)(uint32_t *);
+typedef int (*FuncGetRxData)(uint8_t *, uint32_t, int);
 
 // CAPP_EtherCAT_Axis_ControlDlg dialog
 class CAPP_EtherCAT_Axis_ControlDlg : public CDialog
@@ -48,6 +52,7 @@ public:
 	int ECM_WaitAsyncDone(int nS);
 	int ECM_EcatStateCheck(uint8_t u8Slave, uint8_t u8State);
 
+	void PciSpiDataExchange(uint8_t *pTxBuf, uint8_t *pRxBuf, uint32_t u32PackSize);
 	int SpiDataExchange(uint8_t *RetIdx, uint8_t *RetCmd);
 	int ECM_GetFirmwareVersion(uint8_t *pVersion);
 	int ECM_InfoUpdate(uint8_t *pEcmStatus, uint8_t *pRxPDOFifoCnt, uint8_t *CrcErrCnt, uint8_t *WkcErrCnt);
@@ -93,7 +98,11 @@ public:
 public:
 	FuncDevInit InitialDev;
 	FuncDevClose CloseDev;
-	FuncUserSpiDataExchange UserSpiDataExchange;
+	FuncSetDataSize SetDataSize;
+	FuncSetTxData SetTxData;
+	FuncSetSend SetSend;
+	FuncGetBusy GetBusy;
+	FuncGetRxData GetRxData;
 
 public:
 	bool m_bECATinitFlag;

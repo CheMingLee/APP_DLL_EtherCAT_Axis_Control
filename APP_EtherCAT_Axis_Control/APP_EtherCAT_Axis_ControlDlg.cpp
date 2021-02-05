@@ -112,13 +112,16 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 			pRet = (SPI_RET_PACKAGE_T *)u8RxBuf;
 			u8CmdIdx = 0;
 
-			if (EtherCAT_Init())
+			if (SetDataSize != NULL && SetTxData != NULL && SetSend != NULL && GetBusy != NULL && GetRxData != NULL)
 			{
-				m_bECATinitFlag = true;
-			}
-			else
-			{
-				m_bECATinitFlag = false;
+				if (EtherCAT_Init())
+				{
+					m_bECATinitFlag = true;
+				}
+				else
+				{
+					m_bECATinitFlag = false;
+				}
 			}
 		}
 	}
@@ -175,12 +178,35 @@ HCURSOR CAPP_EtherCAT_Axis_ControlDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CAPP_EtherCAT_Axis_ControlDlg::PciSpiDataExchange(uint8_t *pTxBuf, uint8_t *pRxBuf, uint32_t u32TotalPackSize)
+{
+	int iRet;
+	uint32_t BusyFlag;
+	
+	SetDataSize(u32TotalPackSize);
+
+	iRet = SetTxData(pTxBuf, u32TotalPackSize, 0);
+	if (iRet)
+	{
+		iRet = SetSend();
+		if (iRet)
+		{
+			do
+			{
+				GetBusy(&BusyFlag);
+			} while (BusyFlag);
+
+			GetRxData(pTxBuf, u32TotalPackSize, 0);
+		}
+	}
+}
+
 int CAPP_EtherCAT_Axis_ControlDlg::SpiDataExchange(uint8_t *RetIdx, uint8_t *RetCmd)
 {
 	pCmd->Head.u32StartWord = ECM_START_WORD;
 	pCmd->Crc = ECM_CRC_MAGIC_NUM;
 	pCmd->StopWord = ECM_STOP_WORD;
-	UserSpiDataExchange(u8TxBuf, u8RxBuf, sizeof(SPI_CMD_PACKAGE_T));
+	PciSpiDataExchange(u8TxBuf, u8RxBuf, sizeof(SPI_CMD_PACKAGE_T));
 
 	if(pRet->Crc == ECM_CRC_MAGIC_NUM){
 		if(RetIdx)
@@ -1032,7 +1058,11 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		m_bDLLflag = true;
 		InitialDev = (FuncDevInit)GetProcAddress(m_hinstLib, "InitialDev");
 		CloseDev = (FuncDevClose)GetProcAddress(m_hinstLib, "CloseDev");
-		UserSpiDataExchange = (FuncUserSpiDataExchange)GetProcAddress(m_hinstLib, "UserSpiDataExchange");
+		SetDataSize = (FuncSetDataSize)GetProcAddress(m_hinstLib, "SetDataSize");
+		SetTxData = (FuncSetTxData)GetProcAddress(m_hinstLib, "SetTxData");
+		SetSend = (FuncSetSend)GetProcAddress(m_hinstLib, "SetSend");
+		GetBusy = (FuncGetBusy)GetProcAddress(m_hinstLib, "GetBusy");
+		GetRxData = (FuncGetRxData)GetProcAddress(m_hinstLib, "GetRxData");
 	}
 }
 

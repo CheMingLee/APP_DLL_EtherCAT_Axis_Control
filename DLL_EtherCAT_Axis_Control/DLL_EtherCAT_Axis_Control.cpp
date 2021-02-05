@@ -73,19 +73,86 @@ DllExport void CloseDev()
 {
 	g_DevPMC6.Dev_Close();
 }
-DllExport void UserSpiDataExchange(uint8_t *pTxBuf, uint8_t *pRxBuf, uint32_t u32PackSize)
+
+DllExport int SetDataSize(uint32_t u32TotalPackSize)
 {
 	uint16_t usCmd;
 	char *pData;
 	uint16_t usSize;
 	
-	usCmd = CMD_USERSPIDATAEXCHANGE;
-	pData = (char *)pTxBuf;
-	usSize = sizeof(u32PackSize);
+	usCmd = CMD_SET_DATASIZE;
+	pData = (char *)&u32TotalPackSize;
+	usSize = sizeof(u32TotalPackSize);
+	
+	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
 
-	BOOL bRet = PCI_Write_Datas(usCmd, pData, usSize);
+	return bRet;
+}
+
+DllExport int SetTxData(uint8_t *pTxBuf, uint32_t u32PackSize, int iOffset)
+{
+	uint16_t usCmd;
+	char *pData;
+	uint16_t usSize;
+	
+	usCmd = CMD_SET_TXDATA;
+	pData = (char *)pTxBuf + iOffset;
+	usSize = u32PackSize;
+	
+	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
+
+	return bRet;
+}
+
+DllExport int SetSend()
+{
+	uint16_t usCmd;
+	char *pData;
+	uint16_t usSize;
+	
+	usCmd = CMD_SET_SEND;
+	pData = (char *)NULL;
+	usSize = sizeof(NULL);
+	
+	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
+
+	return bRet;
+}
+
+DllExport int GetBusy(uint32_t *pBusyBuf)
+{
+	uint16_t usCmd;
+	char *pData;
+	uint16_t usSize;
+	
+	usCmd = CMD_GET_BUSY;
+	pData = (char *)NULL;
+	usSize = sizeof(NULL);
+
+	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
 	if (bRet)
 	{
-		memcpy(pRxBuf, g_DevPMC6.m_ReadBuffer, sizeof(u32PackSize));
+		memcpy(pBusyBuf, g_DevPMC6.m_ReadBuffer, sizeof(uint32_t));
 	}
+
+	return bRet;
+}
+
+DllExport int GetRxData(uint8_t *pRxBuf, uint32_t u32PackSize, int iOffset)
+{
+	uint16_t usCmd;
+	char *pData;
+	uint16_t usSize;
+	
+	usCmd = CMD_GET_BUSY;
+	pData = (char *)&u32PackSize;
+	usSize = sizeof(u32PackSize);
+
+	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
+	if (bRet)
+	{
+		memcpy(pRxBuf + iOffset, g_DevPMC6.m_ReadBuffer, u32PackSize);
+	}
+
+	return bRet;
 }

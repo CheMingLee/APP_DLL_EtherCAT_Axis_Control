@@ -35,5 +35,9 @@ public:
 public:
 	DllExport void InitialDev();
 	DllExport void CloseDev();
-	DllExport void UserSpiDataExchange(uint8_t *pTxBuf, uint8_t *pRxBuf, uint32_t u32PackSize);
+	DllExport int SetDataSize(uint32_t u32TotalPackSize);
+	DllExport int SetTxData(uint8_t *pTxBuf, uint32_t u32PackSize, int iOffset);
+	DllExport int SetSend();
+	DllExport int GetBusy(uint32_t *pBusyBuf);
+	DllExport int GetRxData(uint8_t *pRxBuf, uint32_t u32PackSize, int iOffset);
 };

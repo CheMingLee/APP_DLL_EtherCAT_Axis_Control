@@ -526,7 +526,7 @@ BOOL PCI_CheckReplay(unsigned short usCmd)
 
 	switch (usCmd)
 	{
-		case 1:
+		case CMD_GET_BUSY:
 		{
 			bReBack = true;
 			break;

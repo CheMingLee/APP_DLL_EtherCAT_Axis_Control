@@ -1,5 +1,9 @@
 // CMD define
-#define CMD_USERSPIDATAEXCHANGE 0
+#define CMD_SET_DATASIZE 0
+#define CMD_SET_TXDATA 1
+#define CMD_SET_SEND 2
+#define CMD_GET_BUSY 3
+#define CMD_GET_RXDATA 4
 
 #ifndef _PCI_
 #define _PCI_
