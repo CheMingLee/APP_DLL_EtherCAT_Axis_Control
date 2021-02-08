@@ -26,6 +26,19 @@
 #define RXPDO_SIZE_BYTES		6
 #define TXPDO_SIZE_BYTES		6
 
+#ifdef _MSC_VER  
+typedef signed char        int8_t;
+typedef short              int16_t;
+typedef int                int32_t;
+typedef long long          int64_t;
+typedef unsigned char      uint8_t;
+typedef unsigned short     uint16_t;
+typedef unsigned int       uint32_t;
+typedef unsigned long long uint64_t;
+#else 
+#include <stdint.h>  // for integer typedefs
+#endif 
+
 #pragma pack(push,1)
 typedef struct _rxpdo_st_def_t
 {

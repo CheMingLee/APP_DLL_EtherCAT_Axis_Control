@@ -531,7 +531,11 @@ BOOL PCI_CheckReplay(unsigned short usCmd)
 			bReBack = true;
 			break;
 		}
-		
+		case CMD_GET_RXDATA:
+		{
+			bReBack = true;
+			break;
+		}
 		default:
 		{
 			break;

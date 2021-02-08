@@ -7,13 +7,15 @@
 #include "EcmUsrDriver.h"
 #include "EcmDriver.h"
 
+#define PCI_DATA_MAX_SIZE 200
+
 // DLL function signature
 typedef void (*FuncDevInit)();
 typedef void (*FuncDevClose)();
 typedef int (*FuncSetDataSize)(uint32_t);
 typedef int (*FuncSetTxData)(uint8_t *, uint32_t, int);
 typedef int (*FuncSetSend)();
-typedef int (*FuncGetBusy)(uint32_t *);
+typedef int (*FuncGetBusyFlag)(uint32_t *);
 typedef int (*FuncGetRxData)(uint8_t *, uint32_t, int);
 
 // CAPP_EtherCAT_Axis_ControlDlg dialog
@@ -101,7 +103,7 @@ public:
 	FuncSetDataSize SetDataSize;
 	FuncSetTxData SetTxData;
 	FuncSetSend SetSend;
-	FuncGetBusy GetBusy;
+	FuncGetBusyFlag GetBusyFlag;
 	FuncGetRxData GetRxData;
 
 public:

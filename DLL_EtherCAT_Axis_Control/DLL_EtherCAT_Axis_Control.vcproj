@@ -22,7 +22,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -66,6 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Setupapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName)_x86.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile=".\DLL_EtherCAT_Axis_Control.def"
@@ -182,7 +183,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -226,6 +227,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Setupapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName)_x64.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile=".\DLL_EtherCAT_Axis_Control.def"
@@ -265,11 +267,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Dev_PMC6.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DLL_EtherCAT_Axis_Control.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\DLL_EtherCAT_Axis_Control.def"
+				>
+			</File>
+			<File
+				RelativePath=".\pci.cpp"
 				>
 			</File>
 			<File
@@ -307,7 +317,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\ctrlcard.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Dev_PMC6.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DLL_EtherCAT_Axis_Control.h"
+				>
+			</File>
+			<File
+				RelativePath=".\guid_def.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pci.h"
 				>
 			</File>
 			<File

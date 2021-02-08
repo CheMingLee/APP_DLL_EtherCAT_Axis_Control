@@ -109,25 +109,29 @@ DllExport int SetSend()
 	uint16_t usCmd;
 	char *pData;
 	uint16_t usSize;
-	
+	int iDataBuf;
+
+	iDataBuf = 0;
 	usCmd = CMD_SET_SEND;
-	pData = (char *)NULL;
-	usSize = sizeof(NULL);
+	pData = (char *)&iDataBuf;
+	usSize = sizeof(iDataBuf);
 	
 	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
 
 	return bRet;
 }
 
-DllExport int GetBusy(uint32_t *pBusyBuf)
+DllExport int GetBusyFlag(uint32_t *pBusyBuf)
 {
 	uint16_t usCmd;
 	char *pData;
 	uint16_t usSize;
-	
+	int iDataBuf;
+
+	iDataBuf = 0;
 	usCmd = CMD_GET_BUSY;
-	pData = (char *)NULL;
-	usSize = sizeof(NULL);
+	pData = (char *)&iDataBuf;
+	usSize = sizeof(iDataBuf);
 
 	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
 	if (bRet)
@@ -144,7 +148,7 @@ DllExport int GetRxData(uint8_t *pRxBuf, uint32_t u32PackSize, int iOffset)
 	char *pData;
 	uint16_t usSize;
 	
-	usCmd = CMD_GET_BUSY;
+	usCmd = CMD_GET_RXDATA;
 	pData = (char *)&u32PackSize;
 	usSize = sizeof(u32PackSize);
 

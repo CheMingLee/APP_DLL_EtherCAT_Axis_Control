@@ -106,13 +106,17 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 		{
 			InitialDev();
 
-			u8TxBuf[PKG_MAX_SIZE] = {0};
-			u8RxBuf[PKG_MAX_SIZE] = {0};
+			for (int i = 0; i < PKG_MAX_SIZE; i++)
+			{
+				u8TxBuf[i] = 0;
+				u8RxBuf[i] = 0;
+			}
+			
 			pCmd = (SPI_CMD_PACKAGE_T *)u8TxBuf;
 			pRet = (SPI_RET_PACKAGE_T *)u8RxBuf;
 			u8CmdIdx = 0;
 
-			if (SetDataSize != NULL && SetTxData != NULL && SetSend != NULL && GetBusy != NULL && GetRxData != NULL)
+			if (SetDataSize != NULL && SetTxData != NULL && SetSend != NULL && GetBusyFlag != NULL && GetRxData != NULL)
 			{
 				if (EtherCAT_Init())
 				{
@@ -182,22 +186,35 @@ void CAPP_EtherCAT_Axis_ControlDlg::PciSpiDataExchange(uint8_t *pTxBuf, uint8_t 
 {
 	int iRet;
 	uint32_t BusyFlag;
+	int iSizeBuf;
+	int iOffset = 0;
 	
+	iSizeBuf = u32TotalPackSize;
 	SetDataSize(u32TotalPackSize);
 
-	iRet = SetTxData(pTxBuf, u32TotalPackSize, 0);
-	if (iRet)
+	if (u32TotalPackSize >= PKG_MIN_SIZE && u32TotalPackSize <= PKG_MAX_SIZE)
 	{
-		iRet = SetSend();
-		if (iRet)
+		do
 		{
-			do
+			iRet = SetTxData(pTxBuf, PCI_DATA_MAX_SIZE, iOffset);
+			if (iRet)
 			{
-				GetBusy(&BusyFlag);
-			} while (BusyFlag);
+				iRet = SetSend();
+				if (iRet)
+				{
+					do
+					{
+						GetBusyFlag(&BusyFlag);
+					} while (BusyFlag);
 
-			GetRxData(pTxBuf, u32TotalPackSize, 0);
-		}
+					GetRxData(pRxBuf, PCI_DATA_MAX_SIZE, iOffset);
+				}
+			}
+
+			iSizeBuf -= PCI_DATA_MAX_SIZE;
+			iOffset += PCI_DATA_MAX_SIZE;
+
+		} while (iSizeBuf > 0);
 	}
 }
 
@@ -294,7 +311,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::ECM_EcatInit(uint8_t DCActCode, uint32_t CycT
 {
 	int i=0;
 	uint8_t IdxCheck;
-	uint8_t EcmStatus;
+	// uint8_t EcmStatus;
 	EC_DCSYNC_H *pDcSyncCmd = (EC_DCSYNC_H *)pCmd->Data;
 	pDcSyncCmd->Slave = ECM_INDEX;
 	pDcSyncCmd->Mode = 0;
@@ -321,7 +338,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::ECM_EcatReconfig()
 {
 	int i=0;
 	uint8_t IdxCheck;
-	uint8_t EcmStatus;
+	// uint8_t EcmStatus;
 	pCmd->Head.u8Cmd = ECM_CMD_ECAT_RECONFIG_OP;
 	pCmd->Head.u16Size = 0;
 	pCmd->Head.u8Idx = u8CmdIdx++;
@@ -1061,7 +1078,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		SetDataSize = (FuncSetDataSize)GetProcAddress(m_hinstLib, "SetDataSize");
 		SetTxData = (FuncSetTxData)GetProcAddress(m_hinstLib, "SetTxData");
 		SetSend = (FuncSetSend)GetProcAddress(m_hinstLib, "SetSend");
-		GetBusy = (FuncGetBusy)GetProcAddress(m_hinstLib, "GetBusy");
+		GetBusyFlag = (FuncGetBusyFlag)GetProcAddress(m_hinstLib, "GetBusyFlag");
 		GetRxData = (FuncGetRxData)GetProcAddress(m_hinstLib, "GetRxData");
 	}
 }
