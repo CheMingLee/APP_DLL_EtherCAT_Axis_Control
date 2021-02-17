@@ -15,27 +15,36 @@
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
+/////////////////////////////////////////////////////////////////////////////
+// 中文 (台灣) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHT)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL
+#pragma code_page(950)
+#endif //_WIN32
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
-	"#ifndef APSTUDIO_INVOKED\r\n"
+    "#ifndef APSTUDIO_INVOKED\r\n"
     "#include ""targetver.h""\r\n"
     "#endif\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -46,12 +55,11 @@ BEGIN
     "LANGUAGE 9, 1\r\n"
     "#pragma code_page(1252)\r\n"
     "#include ""res\\APP_EtherCAT_Axis_Control.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
-    "#include ""afxres.rc""  	// Standard components\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
     "#endif\r\n"
     "\0"
 END
 
-/////////////////////////////////////////////////////////////////////////////
 #endif    // APSTUDIO_INVOKED
 
 
@@ -62,12 +70,19 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON         "res\\APP_EtherCAT_Axis_Control.ico"
+IDR_MAINFRAME           ICON                    "res\\APP_EtherCAT_Axis_Control.ico"
+#endif    // 中文 (台灣) resources
+/////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////
+// 英文 (美國) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE 9, 1
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
+#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -77,7 +92,7 @@ LANGUAGE 9, 1
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About APP_EtherCAT_Axis_Control"
-FONT 8, "MS Shell Dlg"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
     LTEXT           "APP_EtherCAT_Axis_Control, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
@@ -85,27 +100,35 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
 
-IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG DIALOGEX  0, 0, 320, 200
-STYLE DS_SHELLFONT | WS_POPUP | WS_VISIBLE | WS_CAPTION
- | DS_MODALFRAME
- | WS_SYSMENU
+IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "EtherCAT Axis Control"
-FONT 8, "MS Shell Dlg"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,209,179,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,263,179,50,14
-	CTEXT           "TODO: Place dialog controls here.",IDC_STATIC,10,96,300,8
+    PUSHBUTTON      "Hmoe",IDC_BUTTON_HMOE,190,15,50,14
+    PUSHBUTTON      "Jog",IDC_BUTTON_JOG,190,33,50,14
+    PUSHBUTTON      "Motion",IDC_BUTTON_MOTION,190,51,50,14
+    PUSHBUTTON      "Stop",IDC_BUTTON_STOP,248,33,50,14
+    EDITTEXT        IDC_EDIT_TAR_X,56,51,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TAR_Y,140,51,40,14,ES_AUTOHSCROLL
+    LTEXT           "Target X:",IDC_STATIC,21,53,31,8
+    LTEXT           "Target Y:",IDC_STATIC,105,53,31,8
+    LTEXT           "",IDC_STATIC_CUR_X,56,35,40,12,0,WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATIC_CUR_Y,140,34,40,12,0,WS_EX_STATICEDGE
+    LTEXT           "Current X:",IDC_STATIC,19,35,34,8
+    LTEXT           "Current Y:",IDC_STATIC,102,34,34,8
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
-VS_VERSION_INFO     VERSIONINFO
-  FILEVERSION       1,0,0,1
-  PRODUCTVERSION    1,0,0,1
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -116,25 +139,26 @@ VS_VERSION_INFO     VERSIONINFO
  FILETYPE 0x1L
  FILESUBTYPE 0x0L
 BEGIN
-	BLOCK "StringFileInfo"
-	BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
         BLOCK "040904e4"
-		BEGIN
+        BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
             VALUE "FileDescription", "TODO: <File description>"
-			VALUE "FileVersion",     "1.0.0.1"
-			VALUE "InternalName",    "APP_EtherCAT_Axis_Control.exe"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "APP_EtherCAT_Axis_Control.exe"
             VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
-			VALUE "OriginalFilename","APP_EtherCAT_Axis_Control.exe"
+            VALUE "OriginalFilename", "APP_EtherCAT_Axis_Control.exe"
             VALUE "ProductName", "TODO: <Product name>"
-			VALUE "ProductVersion",  "1.0.0.1"
-		END
-	END
-	BLOCK "VarFileInfo"
-	BEGIN
-		VALUE "Translation", 0x0409, 1252
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
     END
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -142,7 +166,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -151,6 +175,7 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 55
     END
+
     IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -162,19 +187,20 @@ END
 #endif    // APSTUDIO_INVOKED
 
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_ABOUTBOX            "&About APP_EtherCAT_Axis_Control..."
 END
 
+#endif    // 英文 (美國) resources
+/////////////////////////////////////////////////////////////////////////////
 
-#endif
+
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -189,9 +215,10 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE 9, 1
 #pragma code_page(1252)
-#include "res\\APP_EtherCAT_Axis_Control.rc2"  // non-Microsoft Visual C++ edited resources
-#include "afxres.rc"  	// Standard components
+#include "res\APP_EtherCAT_Axis_Control.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
 #endif
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

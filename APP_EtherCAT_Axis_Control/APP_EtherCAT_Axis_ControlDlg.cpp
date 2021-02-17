@@ -50,6 +50,8 @@ END_MESSAGE_MAP()
 
 CAPP_EtherCAT_Axis_ControlDlg::CAPP_EtherCAT_Axis_ControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CAPP_EtherCAT_Axis_ControlDlg::IDD, pParent)
+	, m_dTarX(0)
+	, m_dTarY(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -886,8 +888,8 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
     memset(RxData, 0, sizeof(RxData));
 	memset(TxData, 0, sizeof(TxData));
 	memset(nTimeIdx, 0, sizeof(nTimeIdx));
-
-    nret = ECM_GetFirmwareVersion(&Version);
+	
+	nret = ECM_GetFirmwareVersion(&Version);
     if(nret <= 0)
 	{
 		return -1;
@@ -898,6 +900,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
     {
 		return -1;
 	}
+
 	SlaveCnt = ECM_EcatSlvCntGet();
 	if(SlaveCnt < TEST_SERVO_CNT)
 	{
@@ -953,11 +956,27 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	{
 		ECM_ShowPDOConfig(i,TxPDO_ASSIGN_IDX);
 	}
+
+	// test: get 0x1C12 RxPDO assign
+	// u8CmdMode = 0;
+	// // Send read request
+	// nret = ECM_EcatSdoReq(ECM_SDO_OP_RD, 0, 0x1C12, 0, 1, 7000000, &u8CmdMode);
+	// if(nret <= 0)
+	// {
+	// 	return -1;
+	// }
+	// // Get last request feedback
+	// nret = ECM_EcatSdoGet(&u8CmdMode);
+	// if(nret <= 0)
+	// {
+	// 	return -1;
+	// }
+
 	u16PDOSize = ECM_FifoRxPdoSizeGet();
-	if(u16PDOSize != TEST_RXPDO_BUF_SIZE)
-	{
-		return -1;
-	}
+	// if(u16PDOSize != TEST_RXPDO_BUF_SIZE)
+	// {
+	// 	return -1;
+	// }
 	// SDO example : use SDO write to set driver mode
 	u8CmdMode = 8;// set driver in CSP mode
 	// SDO write

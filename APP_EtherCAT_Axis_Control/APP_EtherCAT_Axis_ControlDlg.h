@@ -118,4 +118,6 @@ public:
 
 public:
 	afx_msg void OnDestroy();
+	double m_dTarX;
+	double m_dTarY;
 };
