@@ -98,6 +98,14 @@ public:
 	int ECM_SlaveInfoGet(uint8_t slave, uint8_t info, uint8_t *pBuf);
 
 public:
+	bool m_bECATinitFlag;
+	int SetPdoConfTbl(PDO_CONFIG_HEAD *pConfig, uint8_t u8PdoIdx, uint8_t u8TblIdx, uint16_t u16Idx, uint8_t u8SubIdx, uint8_t u8BitSize);
+	int SdoGetTarPos();
+	int EtherCAT_Init();
+	HINSTANCE m_hinstLib;
+	bool m_bDLLflag;
+	BOOL IsWow64();
+	void DllLoader();
 	FuncDevInit InitialDev;
 	FuncDevClose CloseDev;
 	FuncSetDataSize SetDataSize;
@@ -107,17 +115,10 @@ public:
 	FuncGetRxData GetRxData;
 
 public:
-	bool m_bECATinitFlag;
-	int SetPdoConfTbl(PDO_CONFIG_HEAD *pConfig, uint8_t u8PdoIdx, uint8_t u8TblIdx, uint16_t u16Idx, uint8_t u8SubIdx, uint8_t u8BitSize);
-	int SdoGetTarPos();
-	int EtherCAT_Init();
-	HINSTANCE m_hinstLib;
-	bool m_bDLLflag;
-	BOOL IsWow64();
-	void DllLoader();
-
-public:
 	afx_msg void OnDestroy();
 	double m_dTarX;
 	double m_dTarY;
+	double m_dSpeed;
+	double m_dAcc;
+	afx_msg void OnBnClickedButtonJogXLeft();
 };

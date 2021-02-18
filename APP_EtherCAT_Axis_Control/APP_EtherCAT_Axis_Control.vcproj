@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\APP_EtherCAT_Axis_ControlDLLfunc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Resource.h"
 				>
 			</File>

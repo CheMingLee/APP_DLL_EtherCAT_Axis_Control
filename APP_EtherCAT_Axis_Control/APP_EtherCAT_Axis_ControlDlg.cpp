@@ -52,6 +52,8 @@ CAPP_EtherCAT_Axis_ControlDlg::CAPP_EtherCAT_Axis_ControlDlg(CWnd* pParent /*=NU
 	: CDialog(CAPP_EtherCAT_Axis_ControlDlg::IDD, pParent)
 	, m_dTarX(0)
 	, m_dTarY(0)
+	, m_dSpeed(0)
+	, m_dAcc(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -67,6 +69,7 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON_JOG_X_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft)
 END_MESSAGE_MAP()
 
 
@@ -960,7 +963,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	// test: get 0x1C12 RxPDO assign
 	// u8CmdMode = 0;
 	// // Send read request
-	// nret = ECM_EcatSdoReq(ECM_SDO_OP_RD, 0, 0x1C12, 0, 1, 7000000, &u8CmdMode);
+	// nret = ECM_EcatSdoReq(ECM_SDO_OP_RD, 0, 0x1c12, 0, 1, 7000000, &u8CmdMode);
 	// if(nret <= 0)
 	// {
 	// 	return -1;
@@ -1115,4 +1118,9 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnDestroy()
 
 		FreeLibrary(m_hinstLib);
 	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
 }

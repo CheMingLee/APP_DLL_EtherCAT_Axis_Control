@@ -71,6 +71,40 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\APP_EtherCAT_Axis_Control.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOGEX 0, 0, 316, 182
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "確定",IDOK,205,161,50,14
+    PUSHBUTTON      "取消",IDCANCEL,259,161,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 175
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
 #endif    // 中文 (台灣) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -100,24 +134,32 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
 
-IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG DIALOGEX 0, 0, 320, 200
+IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG DIALOGEX 0, 0, 350, 199
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "EtherCAT Axis Control"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    PUSHBUTTON      "Hmoe",IDC_BUTTON_HMOE,190,15,50,14
-    PUSHBUTTON      "Jog",IDC_BUTTON_JOG,190,33,50,14
-    PUSHBUTTON      "Motion",IDC_BUTTON_MOTION,190,51,50,14
-    PUSHBUTTON      "Stop",IDC_BUTTON_STOP,248,33,50,14
-    EDITTEXT        IDC_EDIT_TAR_X,56,51,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT_TAR_Y,140,51,40,14,ES_AUTOHSCROLL
-    LTEXT           "Target X:",IDC_STATIC,21,53,31,8
-    LTEXT           "Target Y:",IDC_STATIC,105,53,31,8
-    LTEXT           "",IDC_STATIC_CUR_X,56,35,40,12,0,WS_EX_STATICEDGE
-    LTEXT           "",IDC_STATIC_CUR_Y,140,34,40,12,0,WS_EX_STATICEDGE
-    LTEXT           "Current X:",IDC_STATIC,19,35,34,8
-    LTEXT           "Current Y:",IDC_STATIC,102,34,34,8
+    PUSHBUTTON      "Hmoe",IDC_BUTTON_HMOE,218,14,50,14
+    PUSHBUTTON      "?",IDC_BUTTON_JOG_X_RIGHT,270,84,50,14
+    PUSHBUTTON      "Motion",IDC_BUTTON_MOTION,218,32,50,14
+    PUSHBUTTON      "Stop",IDC_BUTTON_STOP,273,14,50,14
+    EDITTEXT        IDC_EDIT_TAR_X,73,32,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TAR_Y,173,32,40,14,ES_AUTOHSCROLL
+    LTEXT           "Target X(mm):",IDC_STATIC,22,35,47,8
+    LTEXT           "Target Y(mm):",IDC_STATIC,122,35,47,8
+    LTEXT           "",IDC_STATIC_CUR_X,73,16,40,12,0,WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATIC_CUR_Y,173,16,40,12,0,WS_EX_STATICEDGE
+    LTEXT           "Current X(mm):",IDC_STATIC,19,16,50,8
+    LTEXT           "Current Y(mm):",IDC_STATIC,119,16,50,8
+    EDITTEXT        IDC_EDIT_SPEED,73,50,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ACC,173,50,40,14,ES_AUTOHSCROLL
+    LTEXT           "Speed (mm/s):",IDC_STATIC,21,53,48,8
+    LTEXT           "Acc (mm/s^2):",IDC_STATIC,122,53,48,8
+    PUSHBUTTON      "?",IDC_BUTTON_JOG_X_LEFT,164,84,50,14
+    PUSHBUTTON      "?",IDC_BUTTON_JOG_Y_UP,217,67,50,14
+    PUSHBUTTON      "?",IDC_BUTTON_JOG_Y_DOWN,217,101,50,14
+    LTEXT           "Jog",IDC_STATIC,237,87,12,8
 END
 
 
@@ -179,9 +221,9 @@ BEGIN
     IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 313
+        RIGHTMARGIN, 343
         TOPMARGIN, 7
-        BOTTOMMARGIN, 193
+        BOTTOMMARGIN, 192
     END
 END
 #endif    // APSTUDIO_INVOKED
