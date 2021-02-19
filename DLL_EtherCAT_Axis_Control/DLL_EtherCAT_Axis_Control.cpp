@@ -76,87 +76,52 @@ DllExport void CloseDev()
 
 DllExport int SetDataSize(uint32_t u32TotalPackSize)
 {
-	uint16_t usCmd;
-	char *pData;
-	uint16_t usSize;
-	
-	usCmd = CMD_SET_DATASIZE;
-	pData = (char *)&u32TotalPackSize;
-	usSize = sizeof(u32TotalPackSize);
-	
-	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
-
+	int bRet = PCI_Write_Datas(CMD_SET_DATASIZE, (char *)&u32TotalPackSize, sizeof(u32TotalPackSize));
 	return bRet;
 }
 
 DllExport int SetTxData(uint8_t *pTxBuf, uint32_t u32PackSize, int iOffset)
 {
-	uint16_t usCmd;
-	char *pData;
-	uint16_t usSize;
-	
-	usCmd = CMD_SET_TXDATA;
-	pData = (char *)pTxBuf + iOffset;
-	usSize = u32PackSize;
-	
-	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
-
+	int bRet = PCI_Write_Datas(CMD_SET_TXDATA, (char *)pTxBuf + iOffset, (uint16_t)u32PackSize);
 	return bRet;
 }
 
 DllExport int SetSend()
 {
-	uint16_t usCmd;
-	char *pData;
-	uint16_t usSize;
-	int iDataBuf;
-
-	iDataBuf = 0;
-	usCmd = CMD_SET_SEND;
-	pData = (char *)&iDataBuf;
-	usSize = sizeof(iDataBuf);
-	
-	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
-
+	int iDataBuf = 0;
+	int bRet = PCI_Write_Datas(CMD_SET_SEND, (char *)&iDataBuf, sizeof(iDataBuf));
 	return bRet;
 }
 
 DllExport int GetBusyFlag(uint32_t *pBusyBuf)
 {
-	uint16_t usCmd;
-	char *pData;
-	uint16_t usSize;
-	int iDataBuf;
-
-	iDataBuf = 0;
-	usCmd = CMD_GET_BUSY;
-	pData = (char *)&iDataBuf;
-	usSize = sizeof(iDataBuf);
-
-	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
+	int iDataBuf = 0;
+	int bRet = PCI_Write_Datas(CMD_GET_BUSY, (char *)&iDataBuf, sizeof(iDataBuf));
 	if (bRet)
 	{
 		memcpy(pBusyBuf, g_DevPMC6.m_ReadBuffer, sizeof(uint32_t));
 	}
-
 	return bRet;
 }
 
 DllExport int GetRxData(uint8_t *pRxBuf, uint32_t u32PackSize, int iOffset)
 {
-	uint16_t usCmd;
-	char *pData;
-	uint16_t usSize;
-	
-	usCmd = CMD_GET_RXDATA;
-	pData = (char *)&u32PackSize;
-	usSize = sizeof(u32PackSize);
-
-	int bRet = PCI_Write_Datas(usCmd, pData, usSize);
+	int bRet = PCI_Write_Datas(CMD_GET_RXDATA, (char *)&u32PackSize, sizeof(u32PackSize));
 	if (bRet)
 	{
 		memcpy(pRxBuf + iOffset, g_DevPMC6.m_ReadBuffer, u32PackSize);
 	}
+	return bRet;
+}
+
+DllExport int SetParams(int iAxis, MOTION_PARAMS Params)
+{
+	char DataBuf[128];
+
+	memcpy(DataBuf, &iAxis, 4);
+	memcpy(DataBuf + 4, &Params, sizeof(MOTION_PARAMS));
+
+	int bRet = PCI_Write_Datas(CMD_SET_PARAMS, (char *)DataBuf, sizeof(MOTION_PARAMS) + 4);
 
 	return bRet;
 }

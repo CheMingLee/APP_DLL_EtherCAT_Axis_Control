@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "APP_EtherCAT_Axis_Control.h"
 #include "APP_EtherCAT_Axis_ControlDlg.h"
+#include "APP_ParamsDlg.h"
+#include "APP_EtherCAT_Axis_ControlDLLfunc.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,6 +13,14 @@
 
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 LPFN_ISWOW64PROCESS fnIsWow64Process;
+
+FuncDevInit InitialDev;
+FuncDevClose CloseDev;
+FuncSetDataSize SetDataSize;
+FuncSetTxData SetTxData;
+FuncSetSend SetSend;
+FuncGetBusyFlag GetBusyFlag;
+FuncGetRxData GetRxData;
 
 // CAboutDlg dialog used for App About
 
@@ -50,10 +60,9 @@ END_MESSAGE_MAP()
 
 CAPP_EtherCAT_Axis_ControlDlg::CAPP_EtherCAT_Axis_ControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CAPP_EtherCAT_Axis_ControlDlg::IDD, pParent)
-	, m_dTarX(0)
-	, m_dTarY(0)
-	, m_dSpeed(0)
-	, m_dAcc(0)
+	, m_dTarPosX(0)
+	, m_dTarPosY(0)
+
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -61,6 +70,8 @@ CAPP_EtherCAT_Axis_ControlDlg::CAPP_EtherCAT_Axis_ControlDlg(CWnd* pParent /*=NU
 void CAPP_EtherCAT_Axis_ControlDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_TAR_X, m_dTarPosX);
+	DDX_Text(pDX, IDC_EDIT_TAR_Y, m_dTarPosY);
 }
 
 BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
@@ -70,6 +81,10 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BUTTON_JOG_X_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft)
+	ON_BN_CLICKED(IDC_BUTTON_PARAMS_PAGE, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonParamsPage)
+	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_JOG_X_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight)
+ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -1120,7 +1135,32 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnDestroy()
 	}
 }
 
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonParamsPage()
+{
+	APP_ParamsDlg paramsDlg;
+	if (m_bDLLflag)
+	{
+		paramsDlg.DoModal();
+	}
+	else
+	{
+		MessageBox(_T("ERROR: unable to load DLL"));
+	}
+}
+
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
+
+	CDialog::OnTimer(nIDEvent);
 }

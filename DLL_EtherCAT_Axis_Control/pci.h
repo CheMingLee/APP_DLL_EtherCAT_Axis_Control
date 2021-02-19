@@ -4,6 +4,7 @@
 #define CMD_SET_SEND 2
 #define CMD_GET_BUSY 3
 #define CMD_GET_RXDATA 4
+#define CMD_SET_PARAMS 5
 
 #ifndef _PCI_
 #define _PCI_

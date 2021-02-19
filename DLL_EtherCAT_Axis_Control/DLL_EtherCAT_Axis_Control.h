@@ -29,6 +29,17 @@ typedef unsigned long long uint64_t;
 // DLL export
 #define DllExport __declspec(dllexport)
 
+// Params structure
+typedef struct motion_params{
+	double m_dJogSpeed;
+	double m_dMotionSpeed;
+	double m_dComeHomeSpeed;
+	double m_dLeftHomeSpeed;
+	double m_dJagAcc;
+	double m_dMotionAcc;
+	double m_dHomeAcc;
+} MOTION_PARAMS;
+
 // CDLL_EtherCAT_Axis_ControlApp
 // 這個類別的實作請參閱 DLL_EtherCAT_Axis_Control.cpp
 //
@@ -52,4 +63,5 @@ public:
 	DllExport int SetSend();
 	DllExport int GetBusyFlag(uint32_t *pBusyBuf);
 	DllExport int GetRxData(uint8_t *pRxBuf, uint32_t u32PackSize, int iOffset);
+	DllExport int SetParams(int iAxis, MOTION_PARAMS Params);
 };

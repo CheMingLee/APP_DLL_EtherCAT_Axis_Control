@@ -9,15 +9,6 @@
 
 #define PCI_DATA_MAX_SIZE 200
 
-// DLL function signature
-typedef void (*FuncDevInit)();
-typedef void (*FuncDevClose)();
-typedef int (*FuncSetDataSize)(uint32_t);
-typedef int (*FuncSetTxData)(uint8_t *, uint32_t, int);
-typedef int (*FuncSetSend)();
-typedef int (*FuncGetBusyFlag)(uint32_t *);
-typedef int (*FuncGetRxData)(uint8_t *, uint32_t, int);
-
 // CAPP_EtherCAT_Axis_ControlDlg dialog
 class CAPP_EtherCAT_Axis_ControlDlg : public CDialog
 {
@@ -106,19 +97,13 @@ public:
 	bool m_bDLLflag;
 	BOOL IsWow64();
 	void DllLoader();
-	FuncDevInit InitialDev;
-	FuncDevClose CloseDev;
-	FuncSetDataSize SetDataSize;
-	FuncSetTxData SetTxData;
-	FuncSetSend SetSend;
-	FuncGetBusyFlag GetBusyFlag;
-	FuncGetRxData GetRxData;
+	double m_dTarPosX;
+	double m_dTarPosY;
 
 public:
 	afx_msg void OnDestroy();
-	double m_dTarX;
-	double m_dTarY;
-	double m_dSpeed;
-	double m_dAcc;
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnBnClickedButtonParamsPage();
 	afx_msg void OnBnClickedButtonJogXLeft();
+	afx_msg void OnBnClickedButtonJogXRight();
 };
