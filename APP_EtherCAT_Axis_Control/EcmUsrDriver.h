@@ -26,7 +26,7 @@ extern "C"
 #endif
 
 #define TEST_CYCTIME			250000
-#define TEST_SERVO_CNT			1
+#define TEST_SERVO_CNT			2
 #define TEST_SPI_DATA_SIZE		PKG_DATA_DEFAULT_SIZE
 #define TEST_FIFO_CNT			1
 

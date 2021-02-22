@@ -11,6 +11,19 @@ typedef unsigned long long uint64_t;
 #include <stdint.h>  // for integer typedefs
 #endif 
 
+// Params structure
+typedef struct motion_params{
+	double m_dJogSpeed;
+	double m_dMotionSpeed;
+	double m_dComeHomeSpeed;
+	double m_dLeftHomeSpeed;
+	double m_dJagAcc;
+	double m_dMotionAcc;
+	double m_dHomeAcc;
+} MOTION_PARAMS;
+
+extern MOTION_PARAMS g_MotionParms[2];
+
 // DLL function signature
 typedef void (*FuncDevInit)();
 typedef void (*FuncDevClose)();
@@ -19,6 +32,11 @@ typedef int (*FuncSetTxData)(uint8_t *, uint32_t, int);
 typedef int (*FuncSetSend)();
 typedef int (*FuncGetBusyFlag)(uint32_t *);
 typedef int (*FuncGetRxData)(uint8_t *, uint32_t, int);
+typedef int (*FuncSetParams)(int, MOTION_PARAMS);
+typedef int (*FuncSetJog)(int, int);
+typedef int (*FuncSetMotion)(int, double);
+typedef int (*FuncSetHome)(int);
+typedef int (*FuncSetStop)(int);
 
 extern FuncDevInit InitialDev;
 extern FuncDevClose CloseDev;
@@ -27,3 +45,10 @@ extern FuncSetTxData SetTxData;
 extern FuncSetSend SetSend;
 extern FuncGetBusyFlag GetBusyFlag;
 extern FuncGetRxData GetRxData;
+extern FuncSetParams SetParams;
+extern FuncSetJog SetJog;
+extern FuncSetMotion SetMotion;
+extern FuncSetHome SetHome;
+extern FuncSetStop SetStop;
+
+extern CString g_strIniPath;

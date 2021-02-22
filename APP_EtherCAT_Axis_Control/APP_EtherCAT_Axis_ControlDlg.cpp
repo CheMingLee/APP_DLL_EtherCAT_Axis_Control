@@ -21,6 +21,15 @@ FuncSetTxData SetTxData;
 FuncSetSend SetSend;
 FuncGetBusyFlag GetBusyFlag;
 FuncGetRxData GetRxData;
+FuncSetParams SetParams;
+FuncSetJog SetJog;
+FuncSetMotion SetMotion;
+FuncSetHome SetHome;
+FuncSetStop SetStop;
+
+MOTION_PARAMS g_MotionParms[2];
+
+CString g_strIniPath;
 
 // CAboutDlg dialog used for App About
 
@@ -85,6 +94,14 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_JOG_X_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight)
 ON_WM_TIMER()
+ON_BN_CLICKED(IDC_BUTTON_HMOE_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX)
+ON_BN_CLICKED(IDC_BUTTON_HMOE_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY)
+ON_BN_CLICKED(IDC_BUTTON_STOP_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopX)
+ON_BN_CLICKED(IDC_BUTTON_STOP_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopY)
+ON_BN_CLICKED(IDC_BUTTON_MOTION_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX)
+ON_BN_CLICKED(IDC_BUTTON_MOTION_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY)
+ON_BN_CLICKED(IDC_BUTTON_JOG_Y_UP, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp)
+ON_BN_CLICKED(IDC_BUTTON_JOG_Y_DOWN, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown)
 END_MESSAGE_MAP()
 
 
@@ -118,6 +135,53 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	TCHAR CurPath[MAX_PATH] = { 0 };
+	GetCurrentDirectory(MAX_PATH, CurPath);
+	g_strIniPath.Format(_T("%s"), CurPath);
+	g_strIniPath.Append(_T("\\MotionParams.ini"));
+	
+	CString strAxis, strParamsData;
+	for (int i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		strAxis.Format(_T("%d"), i);
+
+		GetPrivateProfileString(strAxis, _T("m_dJogSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dJogSpeed = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dJagAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dJagAcc = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dMotionSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dMotionSpeed = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dMotionAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dMotionAcc = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dComeHomeSpeed = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dLeftHomeSpeed = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dHomeAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dHomeAcc = _tstof(strParamsData);
+
+		// g_MotionParms[i].m_dJogSpeed = 50;
+		// g_MotionParms[i].m_dJagAcc = 500;
+		// g_MotionParms[i].m_dMotionSpeed = 50;
+		// g_MotionParms[i].m_dMotionAcc = 500;
+		// g_MotionParms[i].m_dComeHomeSpeed = 50;
+		// g_MotionParms[i].m_dLeftHomeSpeed = 50;
+		// g_MotionParms[i].m_dHomeAcc = 500;
+	}
+	
 	DllLoader();
 	
 	if (m_bDLLflag)
@@ -1117,6 +1181,11 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		SetSend = (FuncSetSend)GetProcAddress(m_hinstLib, "SetSend");
 		GetBusyFlag = (FuncGetBusyFlag)GetProcAddress(m_hinstLib, "GetBusyFlag");
 		GetRxData = (FuncGetRxData)GetProcAddress(m_hinstLib, "GetRxData");
+		SetParams = (FuncSetParams)GetProcAddress(m_hinstLib, "SetParams");
+		SetJog = (FuncSetJog)GetProcAddress(m_hinstLib, "SetJog");
+		SetMotion = (FuncSetMotion)GetProcAddress(m_hinstLib, "SetMotion");
+		SetHome = (FuncSetHome)GetProcAddress(m_hinstLib, "SetHome");
+		SetStop = (FuncSetStop)GetProcAddress(m_hinstLib, "SetStop");
 	}
 }
 
@@ -1148,19 +1217,169 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonParamsPage()
 	}
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft()
-{
-	// TODO: 在此加入控制項告知處理常式程式碼
-}
-
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight()
-{
-	// TODO: 在此加入控制項告知處理常式程式碼
-}
-
 void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
 
 	CDialog::OnTimer(nIDEvent);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::DLLSetHome(int iAxis)
+{
+	int iRet;
+	CString strError;
+	
+	if (m_bDLLflag)
+	{
+		if (SetHome != NULL)
+		{
+			iRet = SetHome(iAxis);
+			if (!iRet)
+			{
+				strError.Format(_T("Axis %d: Set home failed!"), iAxis);
+				MessageBox(strError);
+			}
+		}
+		else
+		{
+			MessageBox(_T("Unable to load DLL function: SetHome"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("ERROR: unable to load DLL"));
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::DLLSetStop(int iAxis)
+{
+	int iRet;
+	CString strError;
+	
+	if (m_bDLLflag)
+	{
+		if (SetStop != NULL)
+		{
+			iRet = SetStop(iAxis);
+			if (!iRet)
+			{
+				strError.Format(_T("Axis %d: Set stop failed!"), iAxis);
+				MessageBox(strError);
+			}
+		}
+		else
+		{
+			MessageBox(_T("Unable to load DLL function: SetStop"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("ERROR: unable to load DLL"));
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::DLLSetMotion(int iAxis, double dTarPos)
+{
+	int iRet;
+	CString strError;
+	
+	if (m_bDLLflag)
+	{
+		if (SetMotion != NULL)
+		{
+			iRet = SetMotion(iAxis, dTarPos);
+			if (!iRet)
+			{
+				strError.Format(_T("Axis %d: Move to %.2f failed!"), iAxis, dTarPos);
+				MessageBox(strError);
+			}
+		}
+		else
+		{
+			MessageBox(_T("Unable to load DLL function: SetMotion"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("ERROR: unable to load DLL"));
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::DLLSetJog(int iAxis, int iDirection)
+{
+	int iRet;
+	CString strError;
+	
+	if (m_bDLLflag)
+	{
+		if (SetJog != NULL)
+		{
+			iRet = SetJog(iAxis, iDirection);
+			if (!iRet)
+			{
+				strError.Format(_T("Axis %d: Jog failed!"), iAxis);
+				MessageBox(strError);
+			}
+		}
+		else
+		{
+			MessageBox(_T("Unable to load DLL function: SetJog"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("ERROR: unable to load DLL"));
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX()
+{
+	DLLSetHome(0);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
+{
+	DLLSetHome(1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopX()
+{
+	DLLSetStop(0);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopY()
+{
+	DLLSetStop(1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
+{
+	UpdateData(TRUE);
+	DLLSetMotion(0, m_dTarPosX);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY()
+{
+	UpdateData(TRUE);
+	DLLSetMotion(1, m_dTarPosY);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft()
+{
+	DLLSetJog(0, -1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight()
+{
+	DLLSetJog(0, 1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp()
+{
+	DLLSetJog(1, 1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown()
+{
+	DLLSetJog(1, -1);
 }

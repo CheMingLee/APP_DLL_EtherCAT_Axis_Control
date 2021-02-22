@@ -3,12 +3,6 @@
 
 #pragma once
 
-#include "PdoDefine.h"
-#include "EcmUsrDriver.h"
-#include "EcmDriver.h"
-
-#define PCI_DATA_MAX_SIZE 200
-
 // CAPP_EtherCAT_Axis_ControlDlg dialog
 class CAPP_EtherCAT_Axis_ControlDlg : public CDialog
 {
@@ -99,11 +93,23 @@ public:
 	void DllLoader();
 	double m_dTarPosX;
 	double m_dTarPosY;
+	void DLLSetHome(int iAxis);
+	void DLLSetStop(int iAxis);
+	void DLLSetMotion(int iAxis, double dTarPos);
+	void DLLSetJog(int iAxis, int iDirection);
 
 public:
 	afx_msg void OnDestroy();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButtonParamsPage();
+	afx_msg void OnBnClickedButtonHmoeX();
+	afx_msg void OnBnClickedButtonHmoeY();
+	afx_msg void OnBnClickedButtonStopX();
+	afx_msg void OnBnClickedButtonStopY();
+	afx_msg void OnBnClickedButtonMotionX();
+	afx_msg void OnBnClickedButtonMotionY();
 	afx_msg void OnBnClickedButtonJogXLeft();
 	afx_msg void OnBnClickedButtonJogXRight();
+	afx_msg void OnBnClickedButtonJogYUp();
+	afx_msg void OnBnClickedButtonJogYDown();
 };

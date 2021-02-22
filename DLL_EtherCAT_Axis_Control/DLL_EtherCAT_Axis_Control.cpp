@@ -125,3 +125,39 @@ DllExport int SetParams(int iAxis, MOTION_PARAMS Params)
 
 	return bRet;
 }
+
+DllExport int SetJog(int iAxis, int iDirection)
+{
+	char DataBuf[8];
+
+	memcpy(DataBuf, &iAxis, 4);
+	memcpy(DataBuf + 4, &iDirection, 4);
+
+	int bRet = PCI_Write_Datas(CMD_SET_JOG, (char *)DataBuf, 8);
+
+	return bRet;
+}
+
+DllExport int SetMotion(int iAxis, double dTarPos)
+{
+	char DataBuf[12];
+
+	memcpy(DataBuf, &iAxis, 4);
+	memcpy(DataBuf + 4, &dTarPos, 8);
+
+	int bRet = PCI_Write_Datas(CMD_SET_MOTION, (char *)DataBuf, 12);
+
+	return bRet;
+}
+
+DllExport int SetHome(int iAxis)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_HOME, (char *)&iAxis, 4);
+	return bRet;
+}
+
+DllExport int SetStop(int iAxis)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_STOP, (char *)&iAxis, 4);
+	return bRet;
+}

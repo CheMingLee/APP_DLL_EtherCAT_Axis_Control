@@ -11,3 +11,8 @@ SetTxData @ 4
 SetSend @ 5
 GetBusyFlag @ 6
 GetRxData @ 7
+SetParams @ 8
+SetJog @ 9
+SetMotion @ 10
+SetHome @ 11
+SetStop @ 12

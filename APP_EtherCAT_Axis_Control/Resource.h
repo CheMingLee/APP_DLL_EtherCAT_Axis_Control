@@ -8,10 +8,11 @@
 #define IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG 102
 #define IDR_MAINFRAME                   128
 #define IDD_APP_PARAMS_DIALOG           129
-#define IDC_BUTTON_HMOE                 1000
+#define IDC_BUTTON_HMOE_X               1000
 #define IDC_BUTTON_JOG_X_RIGHT          1001
 #define IDC_BUTTON_MOTION_X             1002
 #define IDC_BUTTON_STOP                 1003
+#define IDC_BUTTON_STOP_X               1003
 #define IDC_BUTTON_HMOE_Y               1004
 #define IDC_BUTTON_MOTION_Y             1005
 #define IDC_STATIC_CUR_X                1006

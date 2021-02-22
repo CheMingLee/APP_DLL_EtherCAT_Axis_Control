@@ -64,4 +64,8 @@ public:
 	DllExport int GetBusyFlag(uint32_t *pBusyBuf);
 	DllExport int GetRxData(uint8_t *pRxBuf, uint32_t u32PackSize, int iOffset);
 	DllExport int SetParams(int iAxis, MOTION_PARAMS Params);
+	DllExport int SetJog(int iAxis, int iDirection);
+	DllExport int SetMotion(int iAxis, double dTarPos);
+	DllExport int SetHome(int iAxis);
+	DllExport int SetStop(int iAxis);
 };
