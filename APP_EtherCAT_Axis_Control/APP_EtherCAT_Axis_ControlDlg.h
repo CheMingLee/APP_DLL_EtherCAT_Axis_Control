@@ -104,12 +104,15 @@ public:
 	afx_msg void OnBnClickedButtonParamsPage();
 	afx_msg void OnBnClickedButtonHmoeX();
 	afx_msg void OnBnClickedButtonHmoeY();
-	afx_msg void OnBnClickedButtonStopX();
-	afx_msg void OnBnClickedButtonStopY();
+	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnBnClickedButtonMotionX();
 	afx_msg void OnBnClickedButtonMotionY();
 	afx_msg void OnBnClickedButtonJogXLeft();
 	afx_msg void OnBnClickedButtonJogXRight();
 	afx_msg void OnBnClickedButtonJogYUp();
 	afx_msg void OnBnClickedButtonJogYDown();
+	afx_msg void OnBnClickedButtonJogendXRight();
+	afx_msg void OnBnClickedButtonJogendXLeft();
+	afx_msg void OnBnClickedButtonJogendYRight();
+	afx_msg void OnBnClickedButtonJogendYLeft();
 };

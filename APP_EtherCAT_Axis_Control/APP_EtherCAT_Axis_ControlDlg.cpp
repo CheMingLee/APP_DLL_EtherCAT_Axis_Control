@@ -89,19 +89,21 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
 	ON_WM_DESTROY()
-	ON_BN_CLICKED(IDC_BUTTON_JOG_X_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft)
-	ON_BN_CLICKED(IDC_BUTTON_PARAMS_PAGE, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonParamsPage)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_PARAMS_PAGE, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonParamsPage)
+	ON_BN_CLICKED(IDC_BUTTON_HMOE_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX)
+	ON_BN_CLICKED(IDC_BUTTON_HMOE_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY)
+	ON_BN_CLICKED(IDC_BUTTON_STOP, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop)
+	ON_BN_CLICKED(IDC_BUTTON_MOTION_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX)
+	ON_BN_CLICKED(IDC_BUTTON_MOTION_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY)
+	ON_BN_CLICKED(IDC_BUTTON_JOG_X_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft)
 	ON_BN_CLICKED(IDC_BUTTON_JOG_X_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight)
-ON_WM_TIMER()
-ON_BN_CLICKED(IDC_BUTTON_HMOE_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX)
-ON_BN_CLICKED(IDC_BUTTON_HMOE_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY)
-ON_BN_CLICKED(IDC_BUTTON_STOP_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopX)
-ON_BN_CLICKED(IDC_BUTTON_STOP_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopY)
-ON_BN_CLICKED(IDC_BUTTON_MOTION_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX)
-ON_BN_CLICKED(IDC_BUTTON_MOTION_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY)
-ON_BN_CLICKED(IDC_BUTTON_JOG_Y_UP, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp)
-ON_BN_CLICKED(IDC_BUTTON_JOG_Y_DOWN, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown)
+	ON_BN_CLICKED(IDC_BUTTON_JOG_Y_UP, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp)
+	ON_BN_CLICKED(IDC_BUTTON_JOG_Y_DOWN, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown)
+	ON_BN_CLICKED(IDC_BUTTON_JOGEND_X_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXRight)
+	ON_BN_CLICKED(IDC_BUTTON_JOGEND_X_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXLeft)
+	ON_BN_CLICKED(IDC_BUTTON_JOGEND_Y_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYRight)
+	ON_BN_CLICKED(IDC_BUTTON_JOGEND_Y_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYLeft)
 END_MESSAGE_MAP()
 
 
@@ -172,14 +174,6 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 		GetPrivateProfileString(strAxis, _T("m_dHomeAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
 		g_MotionParms[i].m_dHomeAcc = _tstof(strParamsData);
-
-		// g_MotionParms[i].m_dJogSpeed = 50;
-		// g_MotionParms[i].m_dJagAcc = 500;
-		// g_MotionParms[i].m_dMotionSpeed = 50;
-		// g_MotionParms[i].m_dMotionAcc = 500;
-		// g_MotionParms[i].m_dComeHomeSpeed = 50;
-		// g_MotionParms[i].m_dLeftHomeSpeed = 50;
-		// g_MotionParms[i].m_dHomeAcc = 500;
 	}
 	
 	DllLoader();
@@ -273,7 +267,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::PciSpiDataExchange(uint8_t *pTxBuf, uint8_t 
 	int iSizeBuf;
 	int iOffset = 0;
 	
-	iSizeBuf = u32TotalPackSize;
+	iSizeBuf = (int)u32TotalPackSize;
 	SetDataSize(u32TotalPackSize);
 
 	if (u32TotalPackSize >= PKG_MIN_SIZE && u32TotalPackSize <= PKG_MAX_SIZE)
@@ -1342,14 +1336,9 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
 	DLLSetHome(1);
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopX()
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
 {
 	DLLSetStop(0);
-}
-
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStopY()
-{
-	DLLSetStop(1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
@@ -1382,4 +1371,24 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp()
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown()
 {
 	DLLSetJog(1, -1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXRight()
+{
+	// TODO: 北兜矪瞶盽Α祘Α絏
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXLeft()
+{
+	// TODO: 北兜矪瞶盽Α祘Α絏
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYRight()
+{
+	// TODO: 北兜矪瞶盽Α祘Α絏
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYLeft()
+{
+	// TODO: 北兜矪瞶盽Α祘Α絏
 }

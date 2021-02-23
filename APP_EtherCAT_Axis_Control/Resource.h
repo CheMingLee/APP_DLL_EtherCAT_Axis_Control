@@ -12,7 +12,6 @@
 #define IDC_BUTTON_JOG_X_RIGHT          1001
 #define IDC_BUTTON_MOTION_X             1002
 #define IDC_BUTTON_STOP                 1003
-#define IDC_BUTTON_STOP_X               1003
 #define IDC_BUTTON_HMOE_Y               1004
 #define IDC_BUTTON_MOTION_Y             1005
 #define IDC_STATIC_CUR_X                1006
@@ -29,19 +28,29 @@
 #define IDC_EDIT_MOTION_SPEED_X         1012
 #define IDC_BUTTON_PARAMS_PAGE          1013
 #define IDC_EDIT_MOTION_ACC_X           1013
-#define IDC_STATIC_INPUT_X              1014
 #define IDC_EDIT_MOTION_SPEED_Y         1014
-#define IDC_STATIC_INPUT_Y              1015
+#define IDC_STATIC_SENSOR_HMOE_X        1014
 #define IDC_EDIT_MOTION_ACC_Y           1015
-#define IDC_BUTTON_STOP_Y               1016
+#define IDC_STATIC_SENSOR_HMOE_Y        1015
 #define IDC_EDIT_HOME_SPEED_COME_X      1016
 #define IDC_EDIT_HOME_ACC_X             1017
 #define IDC_EDIT_TAR_X                  1017
 #define IDC_EDIT_HOME_SPEED_COME_Y      1018
 #define IDC_EDIT_TAR_Y                  1018
 #define IDC_EDIT_HOME_ACC_Y             1019
+#define IDC_STATIC_SENSOR_LIMIT1_X      1019
 #define IDC_EDIT_HOME_SPEED_LEFT_X      1020
+#define IDC_STATIC_SENSOR_LIMIT1_Y      1020
 #define IDC_EDIT_HOME_SPEED_LEFT_Y      1021
+#define IDC_STATIC_SENSOR_LIMIT2_X      1021
+#define IDC_STATIC_SENSOR_LIMIT2_Y      1022
+#define IDC_BUTTON_JOGEND_X_RIGHT       1023
+#define IDC_BUTTON_JOGEND_X_LEFT        1024
+#define IDC_EDIT_RATIO_X                1024
+#define IDC_BUTTON_JOGEND_Y_RIGHT       1025
+#define IDC_EDIT_RATIO_X2               1025
+#define IDC_EDIT_RATIO_Y                1025
+#define IDC_BUTTON_JOGEND_Y_LEFT        1026
 
 // Next default values for new objects
 // 
@@ -49,7 +58,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1014
+#define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
