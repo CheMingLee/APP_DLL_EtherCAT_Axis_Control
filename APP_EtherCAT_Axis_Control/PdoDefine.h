@@ -24,7 +24,7 @@
 #define TxPDO_MAP_IDX			0x1A00
 
 #define RXPDO_SIZE_BYTES		6
-#define TXPDO_SIZE_BYTES		6
+#define TXPDO_SIZE_BYTES		10
 
 #ifdef _MSC_VER  
 typedef signed char        int8_t;

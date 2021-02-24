@@ -31,6 +31,7 @@ void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_X, g_MotionParms[0].m_dComeHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_X, g_MotionParms[0].m_dLeftHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_ACC_X, g_MotionParms[0].m_dHomeAcc);
+	DDX_Text(pDX, IDC_EDIT_RATIO_X, g_MotionParms[0].m_dRatio);
 	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_Y, g_MotionParms[1].m_dJogSpeed);
 	DDX_Text(pDX, IDC_EDIT_JOG_ACC_Y, g_MotionParms[1].m_dJagAcc);
 	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_Y, g_MotionParms[1].m_dMotionSpeed);
@@ -38,6 +39,7 @@ void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_Y, g_MotionParms[1].m_dComeHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_Y, g_MotionParms[1].m_dLeftHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_ACC_Y, g_MotionParms[1].m_dHomeAcc);
+	DDX_Text(pDX, IDC_EDIT_RATIO_Y, g_MotionParms[1].m_dRatio);
 }
 
 
@@ -84,6 +86,9 @@ void APP_ParamsDlg::OnBnClickedOk()
 
 				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dHomeAcc);
 				WritePrivateProfileString(strAxis, _T("m_dHomeAcc"), strParamsData, g_strIniPath);
+
+				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dRatio);
+				WritePrivateProfileString(strAxis, _T("m_dRatio"), strParamsData, g_strIniPath);
 			}
 			else
 			{

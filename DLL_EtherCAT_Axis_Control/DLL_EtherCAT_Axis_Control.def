@@ -16,3 +16,6 @@ SetJog @ 9
 SetMotion @ 10
 SetHome @ 11
 SetStop @ 12
+SetJogEnd @ 13
+SetIntrFlag @ 14
+SetCurPos @ 15

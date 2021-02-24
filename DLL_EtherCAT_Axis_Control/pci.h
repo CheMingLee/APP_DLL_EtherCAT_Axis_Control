@@ -9,6 +9,9 @@
 #define CMD_SET_MOTION 7
 #define CMD_SET_HOME 8
 #define CMD_SET_STOP 9
+#define CMD_SET_JOGEND 10
+#define CMD_SET_INTR 11
+#define CMD_SET_CURPOS 12
 
 #ifndef _PCI_
 #define _PCI_

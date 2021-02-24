@@ -68,4 +68,7 @@ public:
 	DllExport int SetMotion(int iAxis, double dTarPos);
 	DllExport int SetHome(int iAxis);
 	DllExport int SetStop(int iAxis);
+	DllExport int SetJogEnd(int iAxis);
+	DllExport int SetIntrFlag();
+	DllExport int SetCurPos(int iAxis, int iCurPos);
 };

@@ -35,6 +35,8 @@ public:
 	SPI_RET_PACKAGE_T *pRet;
 	uint8_t u8CmdIdx;
 
+	int ECM_HeadInterruptClear();
+
 	int ECM_IsAsyncBusy();
 	int ECM_WaitAsyncDone(int nS);
 	int ECM_EcatStateCheck(uint8_t u8Slave, uint8_t u8State);
@@ -93,10 +95,14 @@ public:
 	void DllLoader();
 	double m_dTarPosX;
 	double m_dTarPosY;
+	double m_dCurPosX;
+	double m_dCurPosY;
+	void DLLSetParams(int iAxis);
 	void DLLSetHome(int iAxis);
 	void DLLSetStop(int iAxis);
 	void DLLSetMotion(int iAxis, double dTarPos);
 	void DLLSetJog(int iAxis, int iDirection);
+	void DLLSetJogEnd(int iAxis);
 
 public:
 	afx_msg void OnDestroy();
@@ -111,8 +117,6 @@ public:
 	afx_msg void OnBnClickedButtonJogXRight();
 	afx_msg void OnBnClickedButtonJogYUp();
 	afx_msg void OnBnClickedButtonJogYDown();
-	afx_msg void OnBnClickedButtonJogendXRight();
-	afx_msg void OnBnClickedButtonJogendXLeft();
-	afx_msg void OnBnClickedButtonJogendYRight();
-	afx_msg void OnBnClickedButtonJogendYLeft();
+	afx_msg void OnBnClickedButtonJogendX();
+	afx_msg void OnBnClickedButtonJogendY();
 };

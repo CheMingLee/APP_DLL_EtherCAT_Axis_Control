@@ -20,6 +20,7 @@ typedef struct motion_params{
 	double m_dJagAcc;
 	double m_dMotionAcc;
 	double m_dHomeAcc;
+	double m_dRatio;
 } MOTION_PARAMS;
 
 extern MOTION_PARAMS g_MotionParms[2];
@@ -37,6 +38,9 @@ typedef int (*FuncSetJog)(int, int);
 typedef int (*FuncSetMotion)(int, double);
 typedef int (*FuncSetHome)(int);
 typedef int (*FuncSetStop)(int);
+typedef int (*FuncSetJogEnd)(int);
+typedef int (*FuncSetIntrFlag)();
+typedef int (*FuncSetCurPos)(int, int);
 
 extern FuncDevInit InitialDev;
 extern FuncDevClose CloseDev;
@@ -50,5 +54,8 @@ extern FuncSetJog SetJog;
 extern FuncSetMotion SetMotion;
 extern FuncSetHome SetHome;
 extern FuncSetStop SetStop;
+extern FuncSetJogEnd SetJogEnd;
+extern FuncSetIntrFlag SetIntrFlag;
+extern FuncSetCurPos SetCurPos;
 
 extern CString g_strIniPath;

@@ -44,13 +44,11 @@
 #define IDC_EDIT_HOME_SPEED_LEFT_Y      1021
 #define IDC_STATIC_SENSOR_LIMIT2_X      1021
 #define IDC_STATIC_SENSOR_LIMIT2_Y      1022
-#define IDC_BUTTON_JOGEND_X_RIGHT       1023
-#define IDC_BUTTON_JOGEND_X_LEFT        1024
+#define IDC_BUTTON_JOGEND_X             1023
 #define IDC_EDIT_RATIO_X                1024
 #define IDC_BUTTON_JOGEND_Y_RIGHT       1025
-#define IDC_EDIT_RATIO_X2               1025
 #define IDC_EDIT_RATIO_Y                1025
-#define IDC_BUTTON_JOGEND_Y_LEFT        1026
+#define IDC_BUTTON_JOGEND_Y             1025
 
 // Next default values for new objects
 // 

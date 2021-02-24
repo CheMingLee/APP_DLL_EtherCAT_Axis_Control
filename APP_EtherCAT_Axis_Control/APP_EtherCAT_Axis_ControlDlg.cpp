@@ -26,6 +26,9 @@ FuncSetJog SetJog;
 FuncSetMotion SetMotion;
 FuncSetHome SetHome;
 FuncSetStop SetStop;
+FuncSetJogEnd SetJogEnd;
+FuncSetIntrFlag SetIntrFlag;
+FuncSetCurPos SetCurPos;
 
 MOTION_PARAMS g_MotionParms[2];
 
@@ -100,10 +103,8 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_JOG_X_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight)
 	ON_BN_CLICKED(IDC_BUTTON_JOG_Y_UP, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp)
 	ON_BN_CLICKED(IDC_BUTTON_JOG_Y_DOWN, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown)
-	ON_BN_CLICKED(IDC_BUTTON_JOGEND_X_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXRight)
-	ON_BN_CLICKED(IDC_BUTTON_JOGEND_X_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXLeft)
-	ON_BN_CLICKED(IDC_BUTTON_JOGEND_Y_RIGHT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYRight)
-	ON_BN_CLICKED(IDC_BUTTON_JOGEND_Y_LEFT, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYLeft)
+	ON_BN_CLICKED(IDC_BUTTON_JOGEND_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendX)
+	ON_BN_CLICKED(IDC_BUTTON_JOGEND_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendY)
 END_MESSAGE_MAP()
 
 
@@ -137,6 +138,9 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	m_bDLLflag = false;
+	m_bECATinitFlag = false;
+	
 	TCHAR CurPath[MAX_PATH] = { 0 };
 	GetCurrentDirectory(MAX_PATH, CurPath);
 	g_strIniPath.Format(_T("%s"), CurPath);
@@ -174,6 +178,10 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 		GetPrivateProfileString(strAxis, _T("m_dHomeAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
 		g_MotionParms[i].m_dHomeAcc = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dRatio"), _T("4000"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dRatio = _tstof(strParamsData);
 	}
 	
 	DllLoader();
@@ -183,6 +191,11 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 		if (InitialDev != NULL)
 		{
 			InitialDev();
+
+			for (int i = 0; i < TEST_SERVO_CNT; i++)
+			{
+				DLLSetParams(i);
+			}
 
 			for (int i = 0; i < PKG_MAX_SIZE; i++)
 			{
@@ -194,9 +207,9 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 			pRet = (SPI_RET_PACKAGE_T *)u8RxBuf;
 			u8CmdIdx = 0;
 
-			if (SetDataSize != NULL && SetTxData != NULL && SetSend != NULL && GetBusyFlag != NULL && GetRxData != NULL)
+			if (SetDataSize != NULL && SetTxData != NULL && SetSend != NULL && GetBusyFlag != NULL && GetRxData != NULL && SetCurPos != NULL)
 			{
-				if (EtherCAT_Init())
+				if (EtherCAT_Init() > 0)
 				{
 					m_bECATinitFlag = true;
 				}
@@ -204,6 +217,26 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 				{
 					m_bECATinitFlag = false;
 				}
+			}
+
+			if (m_bECATinitFlag)
+			{
+				int iRet;
+
+				if (SetIntrFlag != NULL)
+				{
+					iRet = SetIntrFlag();
+					if (!iRet)
+					{
+						MessageBox(_T("Can not set interrupt flag enable!"));
+					}
+					else
+					{
+						MessageBox(_T("Unable to load DLL function: SetIntrFlag"));
+					}
+				}
+				
+				ECM_HeadInterruptClear();
 			}
 		}
 	}
@@ -313,6 +346,20 @@ int CAPP_EtherCAT_Axis_ControlDlg::SpiDataExchange(uint8_t *RetIdx, uint8_t *Ret
 	
 	return 0;
 }
+
+int CAPP_EtherCAT_Axis_ControlDlg::ECM_HeadInterruptClear()
+{
+	pCmd->Head.u8Cmd = ECM_CMD_INFO_UPDATE_OP;
+	pCmd->Head.u16Size = 0;
+	pCmd->Head.u8Idx = u8CmdIdx++;
+	pCmd->Head.u8Ctrl = 0;
+	pCmd->Head.u32CompIntClr = 0x80000000;
+	if(SpiDataExchange(0,0)){
+		return 1;
+	}
+	return 0;
+}
+
 int CAPP_EtherCAT_Axis_ControlDlg::ECM_GetFirmwareVersion(uint8_t *pVersion)
 {
 	int i=0;
@@ -1112,6 +1159,10 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 		}
 		if((nret & ECM_PDO_RD_OP) == ECM_PDO_RD_OP)
 		{
+			// DLL SetCurPos to FW
+			for(i = 0; i < TEST_SERVO_CNT ; i++){
+				SetCurPos(i, pTxPDOData[i].n32AcuPos);
+			}
 			break;
 		}
 	}
@@ -1180,6 +1231,9 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		SetMotion = (FuncSetMotion)GetProcAddress(m_hinstLib, "SetMotion");
 		SetHome = (FuncSetHome)GetProcAddress(m_hinstLib, "SetHome");
 		SetStop = (FuncSetStop)GetProcAddress(m_hinstLib, "SetStop");
+		SetJogEnd = (FuncSetJogEnd)GetProcAddress(m_hinstLib, "SetJogEnd");
+		SetIntrFlag = (FuncSetIntrFlag)GetProcAddress(m_hinstLib, "SetIntrFlag");
+		SetCurPos = (FuncSetCurPos)GetProcAddress(m_hinstLib, "SetCurPos");
 	}
 }
 
@@ -1216,6 +1270,54 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 	// TODO: 眤癟矪瞶盽Α祘Α絏㎝ (┪) ㊣箇砞
 
 	CDialog::OnTimer(nIDEvent);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::DLLSetParams(int iAxis)
+{
+	int iRet;
+	CString strAxis, strParamsData, strError;
+	
+	if (SetParams != NULL)
+	{
+		iRet = SetParams(iAxis, g_MotionParms[iAxis]);
+		if (iRet)
+		{
+			strAxis.Format(_T("%d"), iAxis);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dJogSpeed);
+			WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dJagAcc);
+			WritePrivateProfileString(strAxis, _T("m_dJagAcc"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dMotionSpeed);
+			WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dMotionAcc);
+			WritePrivateProfileString(strAxis, _T("m_dMotionAcc"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dComeHomeSpeed);
+			WritePrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dLeftHomeSpeed);
+			WritePrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dHomeAcc);
+			WritePrivateProfileString(strAxis, _T("m_dHomeAcc"), strParamsData, g_strIniPath);
+
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dRatio);
+			WritePrivateProfileString(strAxis, _T("m_dRatio"), strParamsData, g_strIniPath);
+		}
+		else
+		{
+			strError.Format(_T("Axis %d: Set parameters failed!"), iAxis);
+			MessageBox(strError);
+		}
+	}
+	else
+	{
+		MessageBox(_T("Unable to load DLL function: SetParams"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::DLLSetHome(int iAxis)
@@ -1326,6 +1428,33 @@ void CAPP_EtherCAT_Axis_ControlDlg::DLLSetJog(int iAxis, int iDirection)
 	}
 }
 
+void CAPP_EtherCAT_Axis_ControlDlg::DLLSetJogEnd(int iAxis)
+{
+	int iRet;
+	CString strError;
+	
+	if (m_bDLLflag)
+	{
+		if (SetJogEnd != NULL)
+		{
+			iRet = SetJogEnd(iAxis);
+			if (!iRet)
+			{
+				strError.Format(_T("Axis %d: End Jog mode failed!"), iAxis);
+				MessageBox(strError);
+			}
+		}
+		else
+		{
+			MessageBox(_T("Unable to load DLL function: SetJogEnd"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("ERROR: unable to load DLL"));
+	}
+}
+
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX()
 {
 	DLLSetHome(0);
@@ -1339,6 +1468,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
 {
 	DLLSetStop(0);
+	DLLSetStop(1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
@@ -1373,22 +1503,12 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown()
 	DLLSetJog(1, -1);
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXRight()
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendX()
 {
-	// TODO: 北兜矪瞶盽Α祘Α絏
+	DLLSetJogEnd(0);
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendXLeft()
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendY()
 {
-	// TODO: 北兜矪瞶盽Α祘Α絏
-}
-
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYRight()
-{
-	// TODO: 北兜矪瞶盽Α祘Α絏
-}
-
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendYLeft()
-{
-	// TODO: 北兜矪瞶盽Α祘Α絏
+	DLLSetJogEnd(1);
 }
