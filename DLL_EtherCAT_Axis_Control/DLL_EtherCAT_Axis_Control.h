@@ -35,7 +35,7 @@ typedef struct motion_params{
 	double m_dMotionSpeed;
 	double m_dComeHomeSpeed;
 	double m_dLeftHomeSpeed;
-	double m_dJagAcc;
+	double m_dJogAcc;
 	double m_dMotionAcc;
 	double m_dHomeAcc;
 } MOTION_PARAMS;

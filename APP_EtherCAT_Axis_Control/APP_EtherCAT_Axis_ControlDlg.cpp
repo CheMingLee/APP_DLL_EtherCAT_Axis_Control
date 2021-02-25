@@ -155,9 +155,9 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 		strParamsData.ReleaseBuffer();
 		g_MotionParms[i].m_dJogSpeed = _tstof(strParamsData);
 
-		GetPrivateProfileString(strAxis, _T("m_dJagAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		GetPrivateProfileString(strAxis, _T("m_dJogAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dJagAcc = _tstof(strParamsData);
+		g_MotionParms[i].m_dJogAcc = _tstof(strParamsData);
 
 		GetPrivateProfileString(strAxis, _T("m_dMotionSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
@@ -1287,8 +1287,8 @@ void CAPP_EtherCAT_Axis_ControlDlg::DLLSetParams(int iAxis)
 			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dJogSpeed);
 			WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
 
-			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dJagAcc);
-			WritePrivateProfileString(strAxis, _T("m_dJagAcc"), strParamsData, g_strIniPath);
+			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dJogAcc);
+			WritePrivateProfileString(strAxis, _T("m_dJogAcc"), strParamsData, g_strIniPath);
 
 			strParamsData.Format(_T("%.3f"), g_MotionParms[iAxis].m_dMotionSpeed);
 			WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);

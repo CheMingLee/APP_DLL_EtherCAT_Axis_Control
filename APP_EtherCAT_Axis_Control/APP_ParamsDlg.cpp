@@ -25,7 +25,7 @@ void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_X, g_MotionParms[0].m_dJogSpeed);
-	DDX_Text(pDX, IDC_EDIT_JOG_ACC_X, g_MotionParms[0].m_dJagAcc);
+	DDX_Text(pDX, IDC_EDIT_JOG_ACC_X, g_MotionParms[0].m_dJogAcc);
 	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_X, g_MotionParms[0].m_dMotionSpeed);
 	DDX_Text(pDX, IDC_EDIT_MOTION_ACC_X, g_MotionParms[0].m_dMotionAcc);
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_X, g_MotionParms[0].m_dComeHomeSpeed);
@@ -33,7 +33,7 @@ void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_HOME_ACC_X, g_MotionParms[0].m_dHomeAcc);
 	DDX_Text(pDX, IDC_EDIT_RATIO_X, g_MotionParms[0].m_dRatio);
 	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_Y, g_MotionParms[1].m_dJogSpeed);
-	DDX_Text(pDX, IDC_EDIT_JOG_ACC_Y, g_MotionParms[1].m_dJagAcc);
+	DDX_Text(pDX, IDC_EDIT_JOG_ACC_Y, g_MotionParms[1].m_dJogAcc);
 	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_Y, g_MotionParms[1].m_dMotionSpeed);
 	DDX_Text(pDX, IDC_EDIT_MOTION_ACC_Y, g_MotionParms[1].m_dMotionAcc);
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_Y, g_MotionParms[1].m_dComeHomeSpeed);
@@ -69,8 +69,8 @@ void APP_ParamsDlg::OnBnClickedOk()
 				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dJogSpeed);
 				WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dJagAcc);
-				WritePrivateProfileString(strAxis, _T("m_dJagAcc"), strParamsData, g_strIniPath);
+				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dJogAcc);
+				WritePrivateProfileString(strAxis, _T("m_dJogAcc"), strParamsData, g_strIniPath);
 
 				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dMotionSpeed);
 				WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);
