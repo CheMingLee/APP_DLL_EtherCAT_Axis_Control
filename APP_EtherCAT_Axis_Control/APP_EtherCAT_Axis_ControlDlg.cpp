@@ -1269,6 +1269,9 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此加入您的訊息處理常式程式碼和 (或) 呼叫預設值
 
+	// check input home sensor
+	// SDO: change mode (home -> csp)
+
 	CDialog::OnTimer(nIDEvent);
 }
 
@@ -1458,11 +1461,17 @@ void CAPP_EtherCAT_Axis_ControlDlg::DLLSetJogEnd(int iAxis)
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX()
 {
 	DLLSetHome(0);
+	// SDO
+	// SetIntrFlag -> True
+	// ECM_HeadInterruptClear()
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
 {
 	DLLSetHome(1);
+	// SDO
+	// SetIntrFlag -> True
+	// ECM_HeadInterruptClear()
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
