@@ -1323,14 +1323,14 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 		int iCurPos = 0;
 		uint32_t u32mode = 0;
 		uint32_t u32Input = 0;
-		CString strCurPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLet[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
+		CString strCurPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLeft[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
 		
 		for (int i = 0; i < TEST_SERVO_CNT; i++)
 		{
 			iRet = DLLGetPosInfo(i, &iCurPos, &u32mode, &u32Input);
 			if (iRet > 0)
 			{
-				m_dCurPos[i] = (double)iCurPos * g_MotionParms[i].m_dAxisUnit;
+				m_dCurPos[i] = (double)iCurPos / g_MotionParms[i].m_dAxisUnit;
 				m_u32mode[i] = u32mode;
 				m_u32Input[i] = u32Input;
 			}
@@ -1383,43 +1383,87 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 						break;
 				}
 
-				switch (m_u32Input[0])
+				switch (m_u32Input[i])
 				{
 					case DIGINPUT_NOTHING:
 					{
-						
+						strSensorHome[i] = _T("0");
+						strSensorLeft[i] = _T("0");
+						strSensorRight[i] = _T("0");
 						break;
 					}
 					case DIGINPUT_LIMIT_LEFT:
 					{
+						strSensorLeft[i] = _T("1");
 						break;
 					}
 					case DIGINPUT_HMOE:
 					{
+						strSensorHome[i] = _T("1");
 						break;
 					}
 					case DIGINPUT_LIMIT_RIGHT:
 					{
+						strSensorRight[i] = _T("1");
 						break;
 					}
 					default:
 						break;
 				}
+
+				// SDO: change mode (home -> csp)
+				if (m_bHomingFlag[i])
+				{
+					if (m_u32mode[i] == MODE_IDLE)
+					{
+						uint8_t u8CmdMode = 8;
+						
+						if (SetIntrFlagFalse != NULL && SetIntrFlag != NULL)
+						{
+							iRet = SetIntrFlagFalse();
+							if (!iRet)
+							{
+								MessageBox(_T("Failed to disable the interrupt!"));
+							}
+							else
+							{
+								iRet = ECM_EcatSdoReq(ECM_SDO_OP_WR, i, 0x6060, 0, 1, 7000000, &u8CmdMode);
+								if (iRet <= 0)
+								{
+									MessageBox(_T("Set CSP mode failed!"));
+								}
+								else
+								{
+									SetIntrFlag();
+									ECM_HeadInterruptClear();
+									m_bHomingFlag[i] = false;
+								}
+							}
+						}
+						else
+						{
+							MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
+						}
+					}
+				}
 			}
+
+			GetDlgItem(IDC_STATIC_MODE_X)->SetWindowText(strMode[0]);
+			GetDlgItem(IDC_STATIC_MODE_Y)->SetWindowText(strMode[1]);
+			GetDlgItem(IDC_STATIC_SENSOR_HMOE_X)->SetWindowText(strSensorHome[0]);
+			GetDlgItem(IDC_STATIC_SENSOR_HMOE_Y)->SetWindowText(strSensorHome[1]);
+			GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_X)->SetWindowText(strSensorRight[0]);
+			GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_Y)->SetWindowText(strSensorRight[1]);
+			GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_X)->SetWindowText(strSensorLeft[0]);
+			GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_Y)->SetWindowText(strSensorLeft[1]);
 		}
 	}
-
-	// SDO: change mode (home -> csp)
 
 	CDialog::OnTimer(nIDEvent);
 }
 
 int CAPP_EtherCAT_Axis_ControlDlg::DLLGetPosInfo(int iAxis, int *piCurPos, uint32_t *pu32mode, uint32_t *pu32Input)
 {
-	// GetCurPos
-	// GetServoMode
-	// GetDigInput
-
 	int iRet;
 	
 	if (m_bDLLflag)
@@ -1432,8 +1476,18 @@ int CAPP_EtherCAT_Axis_ControlDlg::DLLGetPosInfo(int iAxis, int *piCurPos, uint3
 				MessageBox(_T("Get Information failed!"));
 				return -1;
 			}
-
-
+			iRet = GetServoMode(iAxis, pu32mode);
+			if (!iRet)
+			{
+				MessageBox(_T("Get Information failed!"));
+				return -1;
+			}
+			iRet = GetDigInput(iAxis, pu32Input);
+			if (!iRet)
+			{
+				MessageBox(_T("Get Information failed!"));
+				return -1;
+			}
 		}
 		else
 		{

@@ -203,7 +203,7 @@ DllExport int GetServoMode(int iAxis, uint32_t *pu32Mode)
 	int bRet = PCI_Write_Datas(CMD_GET_SERVOMODE, (char *)&iAxis, 4);
 	if (bRet)
 	{
-		memcpy(pu32Mode, g_DevPMC6.m_ReadBuffer, sizeof(uint32_t));
+		memcpy(pu32Mode, g_DevPMC6.m_ReadBuffer, 4);
 	}
 	return bRet;
 }
@@ -213,7 +213,7 @@ DllExport int GetDigInput(int iAxis, uint32_t *pu32DigInput)
 	int bRet = PCI_Write_Datas(CMD_GET_DIGINPUT, (char *)&iAxis, 4);
 	if (bRet)
 	{
-		memcpy(pu32DigInput, g_DevPMC6.m_ReadBuffer, sizeof(uint32_t));
+		memcpy(pu32DigInput, g_DevPMC6.m_ReadBuffer, 4);
 	}
 	return bRet;
 }
