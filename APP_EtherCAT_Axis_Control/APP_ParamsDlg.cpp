@@ -31,7 +31,7 @@ void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_X, g_MotionParms[0].m_dComeHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_X, g_MotionParms[0].m_dLeftHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_ACC_X, g_MotionParms[0].m_dHomeAcc);
-	DDX_Text(pDX, IDC_EDIT_RATIO_X, g_MotionParms[0].m_dRatio);
+	DDX_Text(pDX, IDC_EDIT_RATIO_X, g_MotionParms[0].m_dAxisUnit);
 	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_Y, g_MotionParms[1].m_dJogSpeed);
 	DDX_Text(pDX, IDC_EDIT_JOG_ACC_Y, g_MotionParms[1].m_dJogAcc);
 	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_Y, g_MotionParms[1].m_dMotionSpeed);
@@ -39,7 +39,7 @@ void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_Y, g_MotionParms[1].m_dComeHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_Y, g_MotionParms[1].m_dLeftHomeSpeed);
 	DDX_Text(pDX, IDC_EDIT_HOME_ACC_Y, g_MotionParms[1].m_dHomeAcc);
-	DDX_Text(pDX, IDC_EDIT_RATIO_Y, g_MotionParms[1].m_dRatio);
+	DDX_Text(pDX, IDC_EDIT_RATIO_Y, g_MotionParms[1].m_dAxisUnit);
 }
 
 
@@ -66,29 +66,29 @@ void APP_ParamsDlg::OnBnClickedOk()
 			{
 				strAxis.Format(_T("%d"), i);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dJogSpeed);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dJogSpeed);
 				WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dJogAcc);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dJogAcc);
 				WritePrivateProfileString(strAxis, _T("m_dJogAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dMotionSpeed);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dMotionSpeed);
 				WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dMotionAcc);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dMotionAcc);
 				WritePrivateProfileString(strAxis, _T("m_dMotionAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dComeHomeSpeed);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dComeHomeSpeed);
 				WritePrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dLeftHomeSpeed);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dLeftHomeSpeed);
 				WritePrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dHomeAcc);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dHomeAcc);
 				WritePrivateProfileString(strAxis, _T("m_dHomeAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.3f"), g_MotionParms[i].m_dRatio);
-				WritePrivateProfileString(strAxis, _T("m_dRatio"), strParamsData, g_strIniPath);
+				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dAxisUnit);
+				WritePrivateProfileString(strAxis, _T("m_dAxisUnit"), strParamsData, g_strIniPath);
 			}
 			else
 			{

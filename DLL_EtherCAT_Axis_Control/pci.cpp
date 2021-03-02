@@ -527,13 +527,12 @@ BOOL PCI_CheckReplay(unsigned short usCmd)
 	switch (usCmd)
 	{
 		case CMD_GET_BUSY:
-		{
-			bReBack = true;
-			break;
-		}
 		case CMD_GET_RXDATA:
+		case CMD_GET_CURPOS:
+		case CMD_GET_SERVOMODE:
+		case CMD_GET_DIGINPUT:
 		{
-			bReBack = true;
+			bReBack = TRUE;
 			break;
 		}
 		default:

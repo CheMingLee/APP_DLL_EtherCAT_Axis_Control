@@ -11,6 +11,19 @@ typedef unsigned long long uint64_t;
 #include <stdint.h>  // for integer typedefs
 #endif 
 
+// mode define
+#define MODE_IDLE 0
+#define MODE_JOG 1
+#define MODE_MOTION 2
+#define MODE_HOME 3
+#define MODE_JOGEND 4
+
+// digital input define
+#define DIGINPUT_NOTHING 0x00
+#define DIGINPUT_LIMIT_LEFT 0x01
+#define DIGINPUT_HMOE 0x02
+#define DIGINPUT_LIMIT_RIGHT 0x04
+
 // Params structure
 typedef struct motion_params{
 	double m_dJogSpeed;
@@ -20,7 +33,7 @@ typedef struct motion_params{
 	double m_dJogAcc;
 	double m_dMotionAcc;
 	double m_dHomeAcc;
-	double m_dRatio;
+	double m_dAxisUnit;
 } MOTION_PARAMS;
 
 extern MOTION_PARAMS g_MotionParms[2];
@@ -41,6 +54,11 @@ typedef int (*FuncSetStop)(int);
 typedef int (*FuncSetJogEnd)(int);
 typedef int (*FuncSetIntrFlag)();
 typedef int (*FuncSetCurPos)(int, int);
+typedef int (*FuncSetServoCnt)(int8_t);
+typedef int (*FuncGetCurPos)(int, int *);
+typedef int (*FuncGetServoMode)(int, uint32_t *);
+typedef int (*FuncGetDigInput)(int, uint32_t *);
+typedef int (*FuncSetIntrFlagFalse)();
 
 extern FuncDevInit InitialDev;
 extern FuncDevClose CloseDev;
@@ -57,5 +75,10 @@ extern FuncSetStop SetStop;
 extern FuncSetJogEnd SetJogEnd;
 extern FuncSetIntrFlag SetIntrFlag;
 extern FuncSetCurPos SetCurPos;
+extern FuncSetServoCnt SetServoCnt;
+extern FuncGetCurPos GetCurPos;
+extern FuncGetServoMode GetServoMode;
+extern FuncGetDigInput GetDigInput;
+extern FuncSetIntrFlagFalse SetIntrFlagFalse;
 
 extern CString g_strIniPath;

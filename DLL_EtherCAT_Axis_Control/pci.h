@@ -12,6 +12,11 @@
 #define CMD_SET_JOGEND 10
 #define CMD_SET_INTR 11
 #define CMD_SET_CURPOS 12
+#define CMD_SET_SERVOCNT 13
+#define CMD_GET_CURPOS 14
+#define CMD_GET_SERVOMODE 15
+#define CMD_GET_DIGINPUT 16
+#define CMD_SET_INTR_DISABLE 17
 
 #ifndef _PCI_
 #define _PCI_

@@ -19,3 +19,8 @@ SetStop @ 12
 SetJogEnd @ 13
 SetIntrFlag @ 14
 SetCurPos @ 15
+SetServoCnt @ 16
+GetCurPos @ 17
+GetServoMode @ 18
+GetDigInput @ 19
+SetIntrFlagFalse @ 20

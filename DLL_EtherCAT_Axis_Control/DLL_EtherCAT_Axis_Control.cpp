@@ -158,10 +158,10 @@ DllExport int SetStop(int iAxis)
 
 DllExport int SetJogEnd(int iAxis)
 {
-	char DataBuf[8];
+	char DataBuf[4];
 
 	memcpy(DataBuf, &iAxis, 4);
-	int bRet = PCI_Write_Datas(CMD_SET_JOGEND, (char *)DataBuf, 8);
+	int bRet = PCI_Write_Datas(CMD_SET_JOGEND, (char *)DataBuf, 4);
 	return bRet;
 }
 
@@ -178,6 +178,49 @@ DllExport int SetCurPos(int iAxis, int iCurPos)
 
 	memcpy(DataBuf, &iAxis, 4);
 	memcpy(DataBuf + 4, &iCurPos, 4);
-	int bRet = PCI_Write_Datas(CMD_SET_JOG, (char *)DataBuf, 8);
+	int bRet = PCI_Write_Datas(CMD_SET_CURPOS, (char *)DataBuf, 8);
+	return bRet;
+}
+
+DllExport int SetServoCnt(int8_t iSlaveCnt)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_SERVOCNT, (char *)&iSlaveCnt, sizeof(iSlaveCnt));
+	return bRet;
+}
+
+DllExport int GetCurPos(int iAxis, int *piCurPos)
+{
+	int bRet = PCI_Write_Datas(CMD_GET_CURPOS, (char *)&iAxis, 4);
+	if (bRet)
+	{
+		memcpy(piCurPos, g_DevPMC6.m_ReadBuffer, 4);
+	}
+	return bRet;
+}
+
+DllExport int GetServoMode(int iAxis, uint32_t *pu32Mode)
+{
+	int bRet = PCI_Write_Datas(CMD_GET_SERVOMODE, (char *)&iAxis, 4);
+	if (bRet)
+	{
+		memcpy(pu32Mode, g_DevPMC6.m_ReadBuffer, sizeof(uint32_t));
+	}
+	return bRet;
+}
+
+DllExport int GetDigInput(int iAxis, uint32_t *pu32DigInput)
+{
+	int bRet = PCI_Write_Datas(CMD_GET_DIGINPUT, (char *)&iAxis, 4);
+	if (bRet)
+	{
+		memcpy(pu32DigInput, g_DevPMC6.m_ReadBuffer, sizeof(uint32_t));
+	}
+	return bRet;
+}
+
+DllExport int SetIntrFlagFalse()
+{
+	int iDataBuf = 0;
+	int bRet = PCI_Write_Datas(CMD_SET_INTR_DISABLE, (char *)&iDataBuf, sizeof(iDataBuf));
 	return bRet;
 }

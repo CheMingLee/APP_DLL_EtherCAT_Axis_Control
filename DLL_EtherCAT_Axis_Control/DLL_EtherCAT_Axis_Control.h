@@ -71,4 +71,9 @@ public:
 	DllExport int SetJogEnd(int iAxis);
 	DllExport int SetIntrFlag();
 	DllExport int SetCurPos(int iAxis, int iCurPos);
+	DllExport int SetServoCnt(int8_t iSlaveCnt);
+	DllExport int GetCurPos(int iAxis, int *piCurPos);
+	DllExport int GetServoMode(int iAxis, uint32_t *pu32Mode);
+	DllExport int GetDigInput(int iAxis, uint32_t *pu32DigInput);
+	DllExport int SetIntrFlagFalse();
 };
