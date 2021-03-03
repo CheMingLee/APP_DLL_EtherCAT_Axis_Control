@@ -35,7 +35,7 @@ FuncGetServoMode GetServoMode;
 FuncGetDigInput GetDigInput;
 FuncSetIntrFlagFalse SetIntrFlagFalse;
 
-MOTION_PARAMS g_MotionParms[2];
+MOTION_PARAMS g_MotionParms[TEST_SERVO_CNT];
 
 CString g_strIniPath;
 
