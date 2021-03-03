@@ -1016,6 +1016,25 @@ int CAPP_EtherCAT_Axis_ControlDlg::SdoGetTarPos()
 	return n32Pos;
 }
 
+int CAPP_EtherCAT_Axis_ControlDlg::ECM_XF_SetIntEnable(DWORD IntMask)
+{	 
+	pCmd->Head.u8Cmd = ECM_CMD_ECAT_INT_SET_ENABLE;
+	pCmd->Head.u16Size = 0;
+	pCmd->Head.u8Idx = u8CmdIdx++;
+	pCmd->Head.u8Param = 1;
+	memcpy(pCmd->Data,&IntMask,4);
+	return SpiDataExchange(0,0);
+}
+
+int CAPP_EtherCAT_Axis_ControlDlg::ECM_XF_SetTxFIFOCnt(BYTE u8TxCnt)
+{
+	pCmd->Head.u8Cmd = ECM_CMD_FIFO_SET_TX_CNT;
+	pCmd->Head.u16Size = 0;
+	pCmd->Head.u8Idx = u8CmdIdx++;
+	pCmd->Head.u8Param = u8TxCnt;
+	return SpiDataExchange(0,0);
+}
+
 int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 {
 	int i = 0, j = 0;
@@ -1045,6 +1064,19 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	{
 		return -1;
 	}
+
+	nret = ECM_XF_SetIntEnable(0x80000000);
+	if(nret <= 0)
+	{
+		return -1;
+	}
+
+	nret = ECM_XF_SetTxFIFOCnt(1);
+	if(nret <= 0)
+	{
+		return -1;
+	}
+
     // ECAT init example
     nret=ECM_EcatInit(0x03, TEST_CYCTIME, TEST_CYCTIME/2);
     if(nret <= 0)
@@ -1192,7 +1224,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	{
 		return -1;
 	}
-	u16PDOSize = ECM_FifoTxPdoSizeGet();
+	u16PDOSizeRet = ECM_FifoTxPdoSizeGet();
 	u16PDOSize = ECM_FifoRxPdoSizeGet();
 	for(i = 0; i < 10; i++)
 	{

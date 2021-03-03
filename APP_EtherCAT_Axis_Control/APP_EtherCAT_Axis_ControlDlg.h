@@ -36,6 +36,8 @@ public:
 	uint8_t u8CmdIdx;
 
 	int ECM_HeadInterruptClear();
+	int ECM_XF_SetIntEnable(DWORD IntMask);
+	int ECM_XF_SetTxFIFOCnt(BYTE u8TxCnt);
 
 	int ECM_IsAsyncBusy();
 	int ECM_WaitAsyncDone(int nS);
