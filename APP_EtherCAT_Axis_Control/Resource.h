@@ -33,6 +33,7 @@
 #define IDC_EDIT_MOTION_ACC_Y           1015
 #define IDC_STATIC_SENSOR_HMOE_Y        1015
 #define IDC_EDIT_HOME_SPEED_COME_X      1016
+#define IDC_STATIC_CMD_X                1016
 #define IDC_EDIT_HOME_ACC_X             1017
 #define IDC_EDIT_TAR_X                  1017
 #define IDC_EDIT_HOME_SPEED_COME_Y      1018
@@ -46,7 +47,8 @@
 #define IDC_STATIC_SENSOR_LIMIT2_Y      1022
 #define IDC_BUTTON_JOGEND_X             1023
 #define IDC_EDIT_RATIO_X                1024
-#define IDC_BUTTON_JOGEND_Y_RIGHT       1025
+#define IDC_STATIC_CUR_Y2               1024
+#define IDC_STATIC_CMD_Y                1024
 #define IDC_EDIT_RATIO_Y                1025
 #define IDC_BUTTON_JOGEND_Y             1025
 

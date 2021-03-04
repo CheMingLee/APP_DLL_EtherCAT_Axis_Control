@@ -76,4 +76,5 @@ public:
 	DllExport int GetServoMode(int iAxis, uint32_t *pu32Mode);
 	DllExport int GetDigInput(int iAxis, uint32_t *pu32DigInput);
 	DllExport int SetIntrFlagFalse();
+	DllExport int GetCmdPos(int iAxis, int *piCmdPos);
 };

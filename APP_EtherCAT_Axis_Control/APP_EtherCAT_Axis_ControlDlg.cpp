@@ -34,6 +34,7 @@ FuncGetCurPos GetCurPos;
 FuncGetServoMode GetServoMode;
 FuncGetDigInput GetDigInput;
 FuncSetIntrFlagFalse SetIntrFlagFalse;
+FuncGetCmdPos GetCmdPos;
 
 MOTION_PARAMS g_MotionParms[TEST_SERVO_CNT];
 
@@ -148,6 +149,8 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	strData.Format(_T("%.2f"), 0.0);
 	GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strData);
 	GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strData);
+	GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strData);
+	GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strData);
 	GetDlgItem(IDC_STATIC_MODE_X)->SetWindowText(_T("IDLE"));
 	GetDlgItem(IDC_STATIC_MODE_Y)->SetWindowText(_T("IDLE"));
 	GetDlgItem(IDC_STATIC_SENSOR_HMOE_X)->SetWindowText(_T("0"));
@@ -251,6 +254,8 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 					if (iRet > 0)
 					{
 						iRet = ECM_HeadInterruptClear();
+
+						// GetRxData(u8RxBuf, PCI_DATA_MAX_SIZE, 0);
 						if (iRet > 0)
 						{
 							SetTimer(0, 20, NULL);
@@ -1037,7 +1042,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::ECM_XF_SetTxFIFOCnt(BYTE u8TxCnt)
 
 int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 {
-	int i = 0, j = 0;
+	int i = 0;
 	int nret = 0;
 	uint8_t Version;
 
@@ -1048,16 +1053,18 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	uint16_t u16PDOSizeRet = 0;
 	uint8_t u8CmdMode = 0;
 	int8_t SlaveCnt = 0;
-	int nTimeIdx[TEST_SERVO_CNT] = {0};
-	uint8_t RxData[TEST_SPI_DATA_SIZE] = {0};
-	uint8_t TxData[TEST_SPI_DATA_SIZE] = {0};
+
+	uint8_t RxData[TEST_SPI_DATA_SIZE];
+	uint8_t TxData[TEST_SPI_DATA_SIZE];
+
+	for (i = 0; i < TEST_SPI_DATA_SIZE; i++)
+	{
+		RxData[i] = 0;
+		TxData[i] = 0;
+	}
 
 	RXPDO_ST_DEF_T *pRxPDOData = (RXPDO_ST_DEF_T *)RxData;
 	TXPDO_ST_DEF_T *pTxPDOData = (TXPDO_ST_DEF_T *)TxData;
-
-    memset(RxData, 0, sizeof(RxData));
-	memset(TxData, 0, sizeof(TxData));
-	memset(nTimeIdx, 0, sizeof(nTimeIdx));
 	
 	nret = ECM_GetFirmwareVersion(&Version);
     if(nret <= 0)
@@ -1157,26 +1164,6 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 		ECM_ShowPDOConfig(i,TxPDO_ASSIGN_IDX);
 	}
 
-	// test: get 0x1C12 RxPDO assign
-	// u8CmdMode = 0;
-	// // Send read request
-	// nret = ECM_EcatSdoReq(ECM_SDO_OP_RD, 0, 0x1c12, 0, 1, 7000000, &u8CmdMode);
-	// if(nret <= 0)
-	// {
-	// 	return -1;
-	// }
-	// // Get last request feedback
-	// nret = ECM_EcatSdoGet(&u8CmdMode);
-	// if(nret <= 0)
-	// {
-	// 	return -1;
-	// }
-
-	u16PDOSize = ECM_FifoRxPdoSizeGet();
-	// if(u16PDOSize != TEST_RXPDO_BUF_SIZE)
-	// {
-	// 	return -1;
-	// }
 	// SDO example : use SDO write to set driver mode
 	u8CmdMode = 8;// set driver in CSP mode
 	// SDO write
@@ -1316,6 +1303,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		GetServoMode = (FuncGetServoMode)GetProcAddress(m_hinstLib, "GetServoMode");
 		GetDigInput = (FuncGetDigInput)GetProcAddress(m_hinstLib, "GetDigInput");
 		SetIntrFlagFalse = (FuncSetIntrFlagFalse)GetProcAddress(m_hinstLib, "SetIntrFlagFalse");
+		GetCmdPos = (FuncGetCmdPos)GetProcAddress(m_hinstLib, "GetCmdPos");
 	}
 }
 
@@ -1325,6 +1313,32 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnDestroy()
 
 	if (m_bDLLflag)
 	{
+		if (m_bECATinitFlag)
+		{
+			if (SetIntrFlagFalse != NULL)
+			{
+				int nret;
+				nret = SetIntrFlagFalse();
+				if (nret > 0)
+				{
+					// Change to INIT state
+					nret = ECM_StateCheck(0xFF, EC_STATE_INIT, 1000);
+					if(nret == 0)
+					{
+						MessageBox(_T("Failed to change state to EC_STATE_INIT!"));
+					}
+				}
+				else
+				{
+					MessageBox(_T("Failed to disable the interrupt!"));
+				}
+			}
+			else
+			{
+				MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
+			}
+		}
+		
 		if (CloseDev != NULL)
 		{  
 			CloseDev();
@@ -1353,16 +1367,18 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 	{
 		int iRet;
 		int iCurPos = 0;
+		int iCmdPos = 0;
 		uint32_t u32mode = 0;
 		uint32_t u32Input = 0;
-		CString strCurPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLeft[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
+		CString strPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLeft[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
 		
 		for (int i = 0; i < TEST_SERVO_CNT; i++)
 		{
-			iRet = DLLGetPosInfo(i, &iCurPos, &u32mode, &u32Input);
+			iRet = DLLGetPosInfo(i, &iCurPos, &iCmdPos, &u32mode, &u32Input);
 			if (iRet > 0)
 			{
 				m_dCurPos[i] = (double)iCurPos / g_MotionParms[i].m_dAxisUnit;
+				m_dCmdPos[i] = (double)iCmdPos / g_MotionParms[i].m_dAxisUnit;
 				m_u32mode[i] = u32mode;
 				m_u32Input[i] = u32Input;
 			}
@@ -1378,10 +1394,14 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 		}
 		else
 		{
-			strCurPos.Format(_T("%.2f"), m_dCurPos[0]);
-			GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strCurPos);
-			strCurPos.Format(_T("%.2f"), m_dCurPos[1]);
-			GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strCurPos);
+			strPos.Format(_T("%.2f"), m_dCurPos[0]);
+			GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strPos);
+			strPos.Format(_T("%.2f"), m_dCurPos[1]);
+			GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strPos);
+			strPos.Format(_T("%.2f"), m_dCmdPos[0]);
+			GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strPos);
+			strPos.Format(_T("%.2f"), m_dCmdPos[1]);
+			GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strPos);
 
 			for (int i = 0; i < TEST_SERVO_CNT; i++)
 			{
@@ -1494,15 +1514,21 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 }
 
-int CAPP_EtherCAT_Axis_ControlDlg::DLLGetPosInfo(int iAxis, int *piCurPos, uint32_t *pu32mode, uint32_t *pu32Input)
+int CAPP_EtherCAT_Axis_ControlDlg::DLLGetPosInfo(int iAxis, int *piCurPos, int *piCmdPos, uint32_t *pu32mode, uint32_t *pu32Input)
 {
 	int iRet;
 	
 	if (m_bDLLflag)
 	{
-		if (GetCurPos != NULL && GetServoMode != NULL && GetDigInput != NULL)
+		if (GetCurPos != NULL && GetCmdPos != NULL && GetServoMode != NULL && GetDigInput != NULL)
 		{
 			iRet = GetCurPos(iAxis, piCurPos);
+			if (!iRet)
+			{
+				MessageBox(_T("Get Information failed!"));
+				return -1;
+			}
+			iRet = GetCmdPos(iAxis, piCmdPos);
 			if (!iRet)
 			{
 				MessageBox(_T("Get Information failed!"));
@@ -1742,7 +1768,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 	}
 
 	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dLeftHomeSpeed * g_MotionParms[iAxis].m_dAxisUnit);
-	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6099, 1, 1, 7000000, (uint8_t *)&u32Data);
+	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6099, 1, 4, 7000000, (uint8_t *)&u32Data);
 	if (nret <= 0)
 	{
 		MessageBox(_T("Set Home Speed for switch failed!"));
@@ -1750,7 +1776,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 	}
 
 	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dComeHomeSpeed * g_MotionParms[iAxis].m_dAxisUnit);
-	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6099, 2, 1, 7000000, (uint8_t *)&u32Data);
+	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6099, 2, 4, 7000000, (uint8_t *)&u32Data);
 	if (nret <= 0)
 	{
 		MessageBox(_T("Set Home Speed for zero failed!"));
@@ -1758,7 +1784,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 	}
 
 	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dHomeAcc * g_MotionParms[iAxis].m_dAxisUnit);
-	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x609a, 0, 1, 7000000, (uint8_t *)&u32Data);
+	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x609a, 0, 4, 7000000, (uint8_t *)&u32Data);
 	if (nret <= 0)
 	{
 		MessageBox(_T("Set Home Acc failed!"));
@@ -1794,15 +1820,30 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX()
 		int iAxis = 0;
 		int nret = 0;
 		
-		DLLSetHome(iAxis);
-		nret = DoHomeSettings(iAxis);
-		if (nret <= 0)
+		if (SetIntrFlagFalse != NULL)
 		{
-			MessageBox(_T("Do Home setting failed!"));
+			nret = SetIntrFlagFalse();
+			if (nret > 0)
+			{
+				DLLSetHome(iAxis);
+				nret = DoHomeSettings(iAxis);
+				if (nret <= 0)
+				{
+					MessageBox(_T("Do Home setting failed!"));
+				}
+				else
+				{
+					m_bHomingFlag[iAxis] = true;
+				}
+			}
+			else
+			{
+				MessageBox(_T("Failed to disable the interrupt!"));
+			}
 		}
 		else
 		{
-			m_bHomingFlag[iAxis] = true;
+			MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
 		}
 	}
 	else
@@ -1818,15 +1859,30 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
 		int iAxis = 1;
 		int nret = 0;
 		
-		DLLSetHome(iAxis);
-		nret = DoHomeSettings(iAxis);
-		if (nret <= 0)
+		if (SetIntrFlagFalse != NULL)
 		{
-			MessageBox(_T("Do Home setting failed!"));
+			nret = SetIntrFlagFalse();
+			if (nret > 0)
+			{
+				DLLSetHome(iAxis);
+				nret = DoHomeSettings(iAxis);
+				if (nret <= 0)
+				{
+					MessageBox(_T("Do Home setting failed!"));
+				}
+				else
+				{
+					m_bHomingFlag[iAxis] = true;
+				}
+			}
+			else
+			{
+				MessageBox(_T("Failed to disable the interrupt!"));
+			}
 		}
 		else
 		{
-			m_bHomingFlag[iAxis] = true;
+			MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
 		}
 	}
 	else

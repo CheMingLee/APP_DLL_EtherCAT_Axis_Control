@@ -17,6 +17,7 @@
 #define CMD_GET_SERVOMODE 15
 #define CMD_GET_DIGINPUT 16
 #define CMD_SET_INTR_DISABLE 17
+#define CMD_GET_CMDPOS 18
 
 #ifndef _PCI_
 #define _PCI_

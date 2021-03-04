@@ -100,6 +100,7 @@ public:
 	double m_dTarPosX;
 	double m_dTarPosY;
 	double m_dCurPos[TEST_SERVO_CNT]; // mm
+	double m_dCmdPos[TEST_SERVO_CNT]; // mm
 	uint32_t m_u32mode[TEST_SERVO_CNT];
 	uint32_t m_u32Input[TEST_SERVO_CNT];
 	void DLLSetParams(int iAxis);
@@ -109,7 +110,7 @@ public:
 	void DLLSetJog(int iAxis, int iDirection);
 	void DLLSetJogEnd(int iAxis);
 	int DoHomeSettings(int iAxis);
-	int DLLGetPosInfo(int iAxis, int *piCurPos, uint32_t *pu32mode, uint32_t *pu32Input);
+	int DLLGetPosInfo(int iAxis, int *piCurPos, int *piCmdPos, uint32_t *pu32mode, uint32_t *pu32Input);
 
 public:
 	afx_msg void OnDestroy();

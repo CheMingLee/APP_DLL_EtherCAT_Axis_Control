@@ -59,6 +59,7 @@ typedef int (*FuncGetCurPos)(int, int *);
 typedef int (*FuncGetServoMode)(int, uint32_t *);
 typedef int (*FuncGetDigInput)(int, uint32_t *);
 typedef int (*FuncSetIntrFlagFalse)();
+typedef int (*FuncGetCmdPos)(int, int *);
 
 extern FuncDevInit InitialDev;
 extern FuncDevClose CloseDev;
@@ -80,5 +81,6 @@ extern FuncGetCurPos GetCurPos;
 extern FuncGetServoMode GetServoMode;
 extern FuncGetDigInput GetDigInput;
 extern FuncSetIntrFlagFalse SetIntrFlagFalse;
+extern FuncGetCmdPos GetCmdPos;
 
 extern CString g_strIniPath;

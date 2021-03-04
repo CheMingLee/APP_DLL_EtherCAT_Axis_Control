@@ -24,3 +24,4 @@ GetCurPos @ 17
 GetServoMode @ 18
 GetDigInput @ 19
 SetIntrFlagFalse @ 20
+GetCmdPos @ 21

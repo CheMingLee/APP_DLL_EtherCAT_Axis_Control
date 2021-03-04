@@ -224,3 +224,13 @@ DllExport int SetIntrFlagFalse()
 	int bRet = PCI_Write_Datas(CMD_SET_INTR_DISABLE, (char *)&iDataBuf, sizeof(iDataBuf));
 	return bRet;
 }
+
+DllExport int GetCmdPos(int iAxis, int *piCmdPos)
+{
+	int bRet = PCI_Write_Datas(CMD_GET_CMDPOS, (char *)&iAxis, 4);
+	if (bRet)
+	{
+		memcpy(piCmdPos, g_DevPMC6.m_ReadBuffer, 4);
+	}
+	return bRet;
+}
