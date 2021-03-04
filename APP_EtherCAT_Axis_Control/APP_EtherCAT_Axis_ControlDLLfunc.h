@@ -37,6 +37,13 @@ typedef struct motion_params{
 } MOTION_PARAMS;
 
 extern MOTION_PARAMS g_MotionParms[2];
+extern double g_dJogSpeed[2];
+extern double g_dJogAcc[2];
+extern double g_dMotionSpeed[2];
+extern double g_dMotionAcc[2];
+extern double g_dComeHomeSpeed[2];
+extern double g_dLeftHomeSpeed[2];
+extern double g_dHomeAcc[2];
 
 // DLL function signature
 typedef void (*FuncDevInit)();

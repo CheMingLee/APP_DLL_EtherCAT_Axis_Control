@@ -36,7 +36,14 @@ FuncGetDigInput GetDigInput;
 FuncSetIntrFlagFalse SetIntrFlagFalse;
 FuncGetCmdPos GetCmdPos;
 
-MOTION_PARAMS g_MotionParms[TEST_SERVO_CNT];
+MOTION_PARAMS g_MotionParms[2];
+double g_dJogSpeed[2];
+double g_dJogAcc[2];
+double g_dMotionSpeed[2];
+double g_dMotionAcc[2];
+double g_dComeHomeSpeed[2];
+double g_dLeftHomeSpeed[2];
+double g_dHomeAcc[2];
 
 CString g_strIniPath;
 
@@ -176,38 +183,45 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	for (int i = 0; i < TEST_SERVO_CNT; i++)
 	{
 		strAxis.Format(_T("%d"), i);
-
-		GetPrivateProfileString(strAxis, _T("m_dJogSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		GetPrivateProfileString(strAxis, _T("m_dJogSpeed"), _T("10"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dJogSpeed = _tstof(strParamsData);
+		g_dJogSpeed[i] = _tstof(strParamsData);
 
 		GetPrivateProfileString(strAxis, _T("m_dJogAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dJogAcc = _tstof(strParamsData);
+		g_dJogAcc[i] = _tstof(strParamsData);
 
-		GetPrivateProfileString(strAxis, _T("m_dMotionSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		GetPrivateProfileString(strAxis, _T("m_dMotionSpeed"), _T("10"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dMotionSpeed = _tstof(strParamsData);
+		g_dMotionSpeed[i] = _tstof(strParamsData);
 
 		GetPrivateProfileString(strAxis, _T("m_dMotionAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dMotionAcc = _tstof(strParamsData);
+		g_dMotionAcc[i] = _tstof(strParamsData);
 
-		GetPrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		GetPrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), _T("2"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dComeHomeSpeed = _tstof(strParamsData);
+		g_dComeHomeSpeed[i] = _tstof(strParamsData);
 
-		GetPrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), _T("50"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		GetPrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), _T("5"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dLeftHomeSpeed = _tstof(strParamsData);
+		g_dLeftHomeSpeed[i] = _tstof(strParamsData);
 
 		GetPrivateProfileString(strAxis, _T("m_dHomeAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dHomeAcc = _tstof(strParamsData);
+		g_dHomeAcc[i] = _tstof(strParamsData);
 
 		GetPrivateProfileString(strAxis, _T("m_dAxisUnit"), _T("4000"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
 		strParamsData.ReleaseBuffer();
 		g_MotionParms[i].m_dAxisUnit = _tstof(strParamsData);
+
+		g_MotionParms[i].m_dJogSpeed = g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dJogAcc = g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dMotionSpeed = g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dMotionAcc = g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dComeHomeSpeed = g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dLeftHomeSpeed = g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dHomeAcc = g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit;
 	}
 	
 	DllLoader();
@@ -1767,7 +1781,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 		return -1;
 	}
 
-	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dLeftHomeSpeed * g_MotionParms[iAxis].m_dAxisUnit);
+	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dLeftHomeSpeed);
 	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6099, 1, 4, 7000000, (uint8_t *)&u32Data);
 	if (nret <= 0)
 	{
@@ -1775,7 +1789,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 		return -1;
 	}
 
-	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dComeHomeSpeed * g_MotionParms[iAxis].m_dAxisUnit);
+	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dComeHomeSpeed);
 	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6099, 2, 4, 7000000, (uint8_t *)&u32Data);
 	if (nret <= 0)
 	{
@@ -1783,7 +1797,7 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 		return -1;
 	}
 
-	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dHomeAcc * g_MotionParms[iAxis].m_dAxisUnit);
+	u32Data = (uint32_t)(g_MotionParms[iAxis].m_dHomeAcc);
 	nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x609a, 0, 4, 7000000, (uint8_t *)&u32Data);
 	if (nret <= 0)
 	{

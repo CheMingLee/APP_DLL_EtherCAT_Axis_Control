@@ -24,21 +24,21 @@ APP_ParamsDlg::~APP_ParamsDlg()
 void APP_ParamsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_X, g_MotionParms[0].m_dJogSpeed);
-	DDX_Text(pDX, IDC_EDIT_JOG_ACC_X, g_MotionParms[0].m_dJogAcc);
-	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_X, g_MotionParms[0].m_dMotionSpeed);
-	DDX_Text(pDX, IDC_EDIT_MOTION_ACC_X, g_MotionParms[0].m_dMotionAcc);
-	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_X, g_MotionParms[0].m_dComeHomeSpeed);
-	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_X, g_MotionParms[0].m_dLeftHomeSpeed);
-	DDX_Text(pDX, IDC_EDIT_HOME_ACC_X, g_MotionParms[0].m_dHomeAcc);
+	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_X, g_dJogSpeed[0]);
+	DDX_Text(pDX, IDC_EDIT_JOG_ACC_X, g_dJogAcc[0]);
+	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_X, g_dMotionSpeed[0]);
+	DDX_Text(pDX, IDC_EDIT_MOTION_ACC_X, g_dMotionAcc[0]);
+	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_X, g_dComeHomeSpeed[0]);
+	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_X, g_dLeftHomeSpeed[0]);
+	DDX_Text(pDX, IDC_EDIT_HOME_ACC_X, g_dHomeAcc[0]);
 	DDX_Text(pDX, IDC_EDIT_RATIO_X, g_MotionParms[0].m_dAxisUnit);
-	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_Y, g_MotionParms[1].m_dJogSpeed);
-	DDX_Text(pDX, IDC_EDIT_JOG_ACC_Y, g_MotionParms[1].m_dJogAcc);
-	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_Y, g_MotionParms[1].m_dMotionSpeed);
-	DDX_Text(pDX, IDC_EDIT_MOTION_ACC_Y, g_MotionParms[1].m_dMotionAcc);
-	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_Y, g_MotionParms[1].m_dComeHomeSpeed);
-	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_Y, g_MotionParms[1].m_dLeftHomeSpeed);
-	DDX_Text(pDX, IDC_EDIT_HOME_ACC_Y, g_MotionParms[1].m_dHomeAcc);
+	DDX_Text(pDX, IDC_EDIT_JOG_SPEED_Y, g_dJogSpeed[1]);
+	DDX_Text(pDX, IDC_EDIT_JOG_ACC_Y, g_dJogAcc[1]);
+	DDX_Text(pDX, IDC_EDIT_MOTION_SPEED_Y, g_dMotionSpeed[1]);
+	DDX_Text(pDX, IDC_EDIT_MOTION_ACC_Y, g_dMotionAcc[1]);
+	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_COME_Y, g_dComeHomeSpeed[1]);
+	DDX_Text(pDX, IDC_EDIT_HOME_SPEED_LEFT_Y, g_dLeftHomeSpeed[1]);
+	DDX_Text(pDX, IDC_EDIT_HOME_ACC_Y, g_dHomeAcc[1]);
 	DDX_Text(pDX, IDC_EDIT_RATIO_Y, g_MotionParms[1].m_dAxisUnit);
 }
 
@@ -61,30 +61,38 @@ void APP_ParamsDlg::OnBnClickedOk()
 	{
 		for (int i = 0; i < TEST_SERVO_CNT; i++)
 		{
+			g_MotionParms[i].m_dJogSpeed = g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+			g_MotionParms[i].m_dJogAcc = g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit;
+			g_MotionParms[i].m_dMotionSpeed = g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+			g_MotionParms[i].m_dMotionAcc = g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit;
+			g_MotionParms[i].m_dComeHomeSpeed = g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+			g_MotionParms[i].m_dLeftHomeSpeed = g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit;
+			g_MotionParms[i].m_dHomeAcc = g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit;
+			
 			iRet = SetParams(i, g_MotionParms[i]);
 			if (iRet)
 			{
 				strAxis.Format(_T("%d"), i);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dJogSpeed);
+				strParamsData.Format(_T("%.2f"), g_dJogSpeed[i]);
 				WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dJogAcc);
+				strParamsData.Format(_T("%.2f"), g_dJogAcc[i]);
 				WritePrivateProfileString(strAxis, _T("m_dJogAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dMotionSpeed);
+				strParamsData.Format(_T("%.2f"), g_dMotionSpeed[i]);
 				WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dMotionAcc);
+				strParamsData.Format(_T("%.2f"), g_dMotionAcc[i]);
 				WritePrivateProfileString(strAxis, _T("m_dMotionAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dComeHomeSpeed);
+				strParamsData.Format(_T("%.2f"), g_dComeHomeSpeed[i]);
 				WritePrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dLeftHomeSpeed);
+				strParamsData.Format(_T("%.2f"), g_dLeftHomeSpeed[i]);
 				WritePrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dHomeAcc);
+				strParamsData.Format(_T("%.2f"), g_dHomeAcc[i]);
 				WritePrivateProfileString(strAxis, _T("m_dHomeAcc"), strParamsData, g_strIniPath);
 
 				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dAxisUnit);
