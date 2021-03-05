@@ -104,7 +104,7 @@ public:
 	uint32_t m_u32mode[TEST_SERVO_CNT];
 	uint32_t m_u32Input[TEST_SERVO_CNT];
 	void DLLSetParams(int iAxis);
-	void DLLSetHome(int iAxis);
+	int DLLSetHome(int iAxis);
 	void DLLSetStop(int iAxis);
 	void DLLSetMotion(int iAxis, double dTarPos);
 	void DLLSetJog(int iAxis, int iDirection);

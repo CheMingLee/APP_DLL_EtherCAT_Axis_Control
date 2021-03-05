@@ -19,10 +19,9 @@ typedef unsigned long long uint64_t;
 #define MODE_JOGEND 4
 
 // digital input define
-#define DIGINPUT_NOTHING 0x00
 #define DIGINPUT_LIMIT_LEFT 0x01
-#define DIGINPUT_HMOE 0x02
-#define DIGINPUT_LIMIT_RIGHT 0x04
+#define DIGINPUT_LIMIT_RIGHT 0x02
+#define DIGINPUT_HMOE 0x04
 
 // Params structure
 typedef struct motion_params{
