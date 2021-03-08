@@ -1176,54 +1176,14 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	{
 		ECM_ShowPDOConfig(i,TxPDO_ASSIGN_IDX);
 	}
-
-	// SDO example : use SDO write to set driver mode
-	u8CmdMode = 8;// set driver in CSP mode
-	// SDO write
-	// Set drive mode : CSP mode
-	for(i = 0; i < TEST_SERVO_CNT; i++)
-	{
-		// Do write.
-		nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, i, 0x6060, 0, 1, 7000000, &u8CmdMode);
-		if(nret <= 0){
-			return -1;
-		}
-	}
-	// SDO read
-	// Check driver mode
-	// for(i = 0; i < TEST_SERVO_CNT; i++)
-	// {
-	// 	u8CmdMode = 0;
-	// 	// Send read request
-	// 	nret = ECM_EcatSdoReq(ECM_SDO_OP_RD, i, 0x6061, 0, 1, 7000000, &u8CmdMode);
-	// 	if(nret <= 0)
-	// 	{
-	// 		return -1;
-	// 	}
-	// 	// Get last request feedback
-	// 	nret = ECM_EcatSdoGet(&u8CmdMode);
-	// 	if(nret <= 0)
-	// 	{
-	// 		return -1;
-	// 	}
-	// }
-	// Enable ECM-XF inside 402 state machine control
-	// NOTICE :Set the offset value and the expected state
-	// if the default value is not fit you need
-	for(i = 0; i < TEST_SERVO_CNT; i++)
-	{
-		nret = ECM_Drv402SM_Enable(i);
-		if(nret == 0)
-		{
-			return -1;
-		}
-	}
+	
 	// Change to SAFE-OP state
 	nret = ECM_StateCheck(0xFF, EC_STATE_SAFE_OP, 1000);
 	if(nret == 0)
 	{
 		return -1;
 	}
+	
 	u16PDOSizeRet = ECM_FifoTxPdoSizeGet();
 	u16PDOSize = ECM_FifoRxPdoSizeGet();
 	for(i = 0; i < 10; i++)
@@ -1248,6 +1208,55 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	if(nret == 0)
 	{
 		return -1;
+	}
+
+	// SDO example : use SDO write to set driver mode
+	u8CmdMode = 8;// set driver in CSP mode
+	// SDO write
+	// Set drive mode : CSP mode
+	for(i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		// Do write.
+		nret = ECM_EcatSdoReq(ECM_SDO_OP_WR, i, 0x6060, 0, 1, 7000000, &u8CmdMode);
+		if(nret <= 0){
+			return -1;
+		}
+	}
+	
+	// SDO read
+	// Check driver mode
+	for(i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		u8CmdMode = 0;
+		// Send read request
+		nret = ECM_EcatSdoReq(ECM_SDO_OP_RD, i, 0x6061, 0, 1, 7000000, &u8CmdMode);
+		if(nret <= 0)
+		{
+			return -1;
+		}
+		// Get last request feedback
+		nret = ECM_EcatSdoGet(&u8CmdMode);
+		if(nret <= 0)
+		{
+			return -1;
+		}
+	}
+
+	// Enable ECM-XF inside 402 state machine control
+	// NOTICE :Set the offset value and the expected state
+	// if the default value is not fit you need
+	for(i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		nret = ECM_Drv402SM_Enable(i);
+		if (nret == 0)
+		{
+			return -1;
+		}
+		nret = ECM_Drv402SM_StateCheck(i, CIA402_SW_OPERATIONENABLED, 1000);
+		if (nret <= 0)
+		{
+			return -1;
+		}
 	}
 
 	return 1;
@@ -1335,8 +1344,18 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnDestroy()
 				if (nret > 0)
 				{
 					// Change to INIT state
+					for (int i = 0; i < TEST_SERVO_CNT; i++)
+					{
+						nret = ECM_Drv402SM_StateCheck(i, CIA402_SW_READYTOSWITCHON, 1000);
+						if (nret == 0)
+						{
+							CString strError;
+							strError.Format(_T("Failed to change axis %d to CIA402_SW_READYTOSWITCHON"), i);
+							MessageBox(strError);
+						}						
+					}
 					nret = ECM_StateCheck(0xFF, EC_STATE_INIT, 1000);
-					if(nret == 0)
+					if (nret == 0)
 					{
 						MessageBox(_T("Failed to change state to EC_STATE_INIT!"));
 					}
@@ -1393,10 +1412,6 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 				m_dCurPos[i] = (double)iCurPos / g_MotionParms[i].m_dAxisUnit;
 				m_dCmdPos[i] = (double)iCmdPos / g_MotionParms[i].m_dAxisUnit;
 				m_u32mode[i] = u32mode;
-				if (u32mode == MODE_HOME)
-				{
-					m_bHomingFlag[i] = true;
-				}
 				m_u32Input[i] = u32Input;
 			}
 			else
@@ -1830,7 +1845,11 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX()
 						if (nret > 0)
 						{
 							nret = ECM_HeadInterruptClear();
-							if (nret <= 0)
+							if (nret > 0)
+							{
+								m_bHomingFlag[iAxis] = true;
+							}
+							else
 							{
 								MessageBox(_T("ECM INTR CLR failed!"));
 							}
@@ -1888,7 +1907,11 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
 						if (nret > 0)
 						{
 							nret = ECM_HeadInterruptClear();
-							if (nret <= 0)
+							if (nret > 0)
+							{
+								m_bHomingFlag[iAxis] = true;
+							}
+							else
 							{
 								MessageBox(_T("ECM INTR CLR failed!"));
 							}
