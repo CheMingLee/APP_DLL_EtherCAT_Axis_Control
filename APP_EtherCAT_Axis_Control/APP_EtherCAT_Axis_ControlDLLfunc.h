@@ -1,3 +1,6 @@
+#include "stdio.h"
+#include "math.h"
+
 #ifdef _MSC_VER  
 typedef signed char        int8_t;
 typedef short              int16_t;

@@ -215,13 +215,14 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 		strParamsData.ReleaseBuffer();
 		g_MotionParms[i].m_dAxisUnit = _tstof(strParamsData);
 
-		g_MotionParms[i].m_dJogSpeed = g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit;
-		g_MotionParms[i].m_dJogAcc = g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit;
-		g_MotionParms[i].m_dMotionSpeed = g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit;
-		g_MotionParms[i].m_dMotionAcc = g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit;
-		g_MotionParms[i].m_dComeHomeSpeed = g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit;
-		g_MotionParms[i].m_dLeftHomeSpeed = g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit;
-		g_MotionParms[i].m_dHomeAcc = g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit;
+		g_MotionParms[i].m_dAxisUnit = abs(g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dJogSpeed = abs(g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dJogAcc = abs(g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dMotionSpeed = abs(g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dMotionAcc = abs(g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dComeHomeSpeed = abs(g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dLeftHomeSpeed = abs(g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dHomeAcc = abs(g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit);
 	}
 	
 	DllLoader();
