@@ -37,6 +37,7 @@ public:
 
 	int ECM_HeadInterruptClear();
 	int ECM_XF_SetIntEnable(DWORD IntMask);
+	int ECM_XF_SetRxFIFOCnt(BYTE u8RxCnt);
 	int ECM_XF_SetTxFIFOCnt(BYTE u8TxCnt);
 
 	int ECM_IsAsyncBusy();

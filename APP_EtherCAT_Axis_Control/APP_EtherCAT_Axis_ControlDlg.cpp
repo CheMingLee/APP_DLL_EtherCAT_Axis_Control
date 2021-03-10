@@ -1049,6 +1049,15 @@ int CAPP_EtherCAT_Axis_ControlDlg::ECM_XF_SetIntEnable(DWORD IntMask)
 	return SpiDataExchange(0,0);
 }
 
+int CAPP_EtherCAT_Axis_ControlDlg::ECM_XF_SetRxFIFOCnt(BYTE u8RxCnt)
+{
+	pCmd->Head.u8Cmd = ECM_CMD_FIFO_SET_RX_CNT;
+	pCmd->Head.u16Size = 0;
+	pCmd->Head.u8Idx = u8CmdIdx++;
+	pCmd->Head.u8Param = u8RxCnt;
+	return SpiDataExchange(0,0);
+}
+
 int CAPP_EtherCAT_Axis_ControlDlg::ECM_XF_SetTxFIFOCnt(BYTE u8TxCnt)
 {
 	pCmd->Head.u8Cmd = ECM_CMD_FIFO_SET_TX_CNT;
@@ -1096,6 +1105,12 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 		return -1;
 	}
 
+	nret = ECM_XF_SetRxFIFOCnt(1);
+	if(nret <= 0)
+	{
+		return -1;
+	}
+	
 	nret = ECM_XF_SetTxFIFOCnt(1);
 	if(nret <= 0)
 	{
