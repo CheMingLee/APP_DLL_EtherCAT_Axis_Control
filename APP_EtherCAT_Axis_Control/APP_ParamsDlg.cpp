@@ -53,64 +53,81 @@ END_MESSAGE_MAP()
 
 void APP_ParamsDlg::OnBnClickedOk()
 {
-	UpdateData(TRUE);
-	int iRet;
-	CString strAxis, strParamsData, strError;
+	bool bIdleFlag = true;
 
-	if (SetParams != NULL)
+	for (int i = 0; i < TEST_SERVO_CNT; i++)
 	{
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		if (g_u32mode[i] != MODE_IDLE)
 		{
-			g_MotionParms[i].m_dAxisUnit = abs(g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dJogSpeed = abs(g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dJogAcc = abs(g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dMotionSpeed = abs(g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dMotionAcc = abs(g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dComeHomeSpeed = abs(g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dLeftHomeSpeed = abs(g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-			g_MotionParms[i].m_dHomeAcc = abs(g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit);
-			
-			iRet = SetParams(i, g_MotionParms[i]);
-			if (iRet)
+			bIdleFlag = false;
+		}
+	}
+	
+	if (bIdleFlag)
+	{
+		UpdateData(TRUE);
+		int iRet;
+		CString strAxis, strParamsData, strError;
+
+		if (SetParams != NULL)
+		{
+			for (int i = 0; i < TEST_SERVO_CNT; i++)
 			{
-				strAxis.Format(_T("%d"), i);
+				g_MotionParms[i].m_dAxisUnit = abs(g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dJogSpeed = abs(g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dJogAcc = abs(g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dMotionSpeed = abs(g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dMotionAcc = abs(g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dComeHomeSpeed = abs(g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dLeftHomeSpeed = abs(g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+				g_MotionParms[i].m_dHomeAcc = abs(g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit);
+				
+				iRet = SetParams(i, g_MotionParms[i]);
+				if (iRet)
+				{
+					strAxis.Format(_T("%d"), i);
 
-				strParamsData.Format(_T("%.2f"), g_dJogSpeed[i]);
-				WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dJogSpeed[i]);
+					WritePrivateProfileString(strAxis, _T("m_dJogSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_dJogAcc[i]);
-				WritePrivateProfileString(strAxis, _T("m_dJogAcc"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dJogAcc[i]);
+					WritePrivateProfileString(strAxis, _T("m_dJogAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_dMotionSpeed[i]);
-				WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dMotionSpeed[i]);
+					WritePrivateProfileString(strAxis, _T("m_dMotionSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_dMotionAcc[i]);
-				WritePrivateProfileString(strAxis, _T("m_dMotionAcc"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dMotionAcc[i]);
+					WritePrivateProfileString(strAxis, _T("m_dMotionAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_dComeHomeSpeed[i]);
-				WritePrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dComeHomeSpeed[i]);
+					WritePrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_dLeftHomeSpeed[i]);
-				WritePrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dLeftHomeSpeed[i]);
+					WritePrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_dHomeAcc[i]);
-				WritePrivateProfileString(strAxis, _T("m_dHomeAcc"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_dHomeAcc[i]);
+					WritePrivateProfileString(strAxis, _T("m_dHomeAcc"), strParamsData, g_strIniPath);
 
-				strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dAxisUnit);
-				WritePrivateProfileString(strAxis, _T("m_dAxisUnit"), strParamsData, g_strIniPath);
+					strParamsData.Format(_T("%.2f"), g_MotionParms[i].m_dAxisUnit);
+					WritePrivateProfileString(strAxis, _T("m_dAxisUnit"), strParamsData, g_strIniPath);
+				}
+				else
+				{
+					strError.Format(_T("Axis %d: Set parameters failed!"), i);
+					MessageBox(strError);
+				}
 			}
-			else
-			{
-				strError.Format(_T("Axis %d: Set parameters failed!"), i);
-				MessageBox(strError);
-			}
+		}
+		else
+		{
+			MessageBox(_T("Unable to load DLL function: SetParams"));
 		}
 	}
 	else
 	{
-		MessageBox(_T("Unable to load DLL function: SetParams"));
+		MessageBox(_T("Set Parameters must be all axis at idle mode!"));
 	}
-
+	
 	OnOK();
 }
 

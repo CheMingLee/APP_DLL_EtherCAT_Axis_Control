@@ -5,7 +5,6 @@
 #include "APP_EtherCAT_Axis_Control.h"
 #include "APP_EtherCAT_Axis_ControlDlg.h"
 #include "APP_ParamsDlg.h"
-#include "APP_EtherCAT_Axis_ControlDLLfunc.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -36,14 +35,15 @@ FuncGetDigInput GetDigInput;
 FuncSetIntrFlagFalse SetIntrFlagFalse;
 FuncGetCmdPos GetCmdPos;
 
-MOTION_PARAMS g_MotionParms[2];
-double g_dJogSpeed[2];
-double g_dJogAcc[2];
-double g_dMotionSpeed[2];
-double g_dMotionAcc[2];
-double g_dComeHomeSpeed[2];
-double g_dLeftHomeSpeed[2];
-double g_dHomeAcc[2];
+uint32_t g_u32mode[TEST_SERVO_CNT];
+MOTION_PARAMS g_MotionParms[TEST_SERVO_CNT];
+double g_dJogSpeed[TEST_SERVO_CNT];
+double g_dJogAcc[TEST_SERVO_CNT];
+double g_dMotionSpeed[TEST_SERVO_CNT];
+double g_dMotionAcc[TEST_SERVO_CNT];
+double g_dComeHomeSpeed[TEST_SERVO_CNT];
+double g_dLeftHomeSpeed[TEST_SERVO_CNT];
+double g_dHomeAcc[TEST_SERVO_CNT];
 
 CString g_strIniPath;
 
@@ -107,8 +107,8 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_PARAMS_PAGE, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonParamsPage)
-	ON_BN_CLICKED(IDC_BUTTON_HMOE_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX)
-	ON_BN_CLICKED(IDC_BUTTON_HMOE_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY)
+	ON_BN_CLICKED(IDC_BUTTON_HOME_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHomeX)
+	ON_BN_CLICKED(IDC_BUTTON_HOME_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHomeY)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop)
 	ON_BN_CLICKED(IDC_BUTTON_MOTION_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX)
 	ON_BN_CLICKED(IDC_BUTTON_MOTION_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY)
@@ -1154,12 +1154,12 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	for(i = 0; i < TEST_SERVO_CNT; i++)
 	{
 		// RxPDO
-		nret = ECM_EcatPdoConfigSet( i, &RxPDOConfig[i]);
+		nret = ECM_EcatPdoConfigSet(i, &RxPDOConfig[i]);
 		if(nret <= 0){
 			return -1;
 		}
 		// TxPDO
-		nret = ECM_EcatPdoConfigSet( i, &TxPDOConfig[i]);
+		nret = ECM_EcatPdoConfigSet(i, &TxPDOConfig[i]);
 		if(nret <= 0){
 			return -1;
 		}
@@ -1169,14 +1169,14 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	{
 		return -1;
 	}
-	for(i = 0; i < TEST_SERVO_CNT; i++)
+	/*for(i = 0; i < TEST_SERVO_CNT; i++)
 	{
 		ECM_ShowPDOConfig(i,RxPDO_ASSIGN_IDX);
 	}
 	for(i = 0; i < TEST_SERVO_CNT; i++)
 	{
 		ECM_ShowPDOConfig(i,TxPDO_ASSIGN_IDX);
-	}
+	}*/
 	
 	// Change to SAFE-OP state
 	nret = ECM_StateCheck(0xFF, EC_STATE_SAFE_OP, 1000);
@@ -1334,6 +1334,8 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnDestroy()
 {
 	CDialog::OnDestroy();
 
+	KillTimer(0);
+	
 	if (m_bDLLflag)
 	{
 		if (m_bECATinitFlag)
@@ -1412,7 +1414,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 			{
 				m_dCurPos[i] = (double)iCurPos / g_MotionParms[i].m_dAxisUnit;
 				m_dCmdPos[i] = (double)iCmdPos / g_MotionParms[i].m_dAxisUnit;
-				m_u32mode[i] = u32mode;
+				g_u32mode[i] = u32mode;
 				m_u32Input[i] = u32Input;
 			}
 			else
@@ -1438,7 +1440,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 
 			for (int i = 0; i < TEST_SERVO_CNT; i++)
 			{
-				switch (m_u32mode[i])
+				switch (g_u32mode[i])
 				{
 					case MODE_IDLE:
 					{
@@ -1498,7 +1500,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 				// SDO: change mode (home -> csp)
 				if (m_bHomingFlag[i])
 				{
-					if (m_u32mode[i] == MODE_IDLE)
+					if (g_u32mode[i] == MODE_IDLE)
 					{
 						uint8_t u8CmdMode = 8;
 						
@@ -1824,128 +1826,98 @@ int CAPP_EtherCAT_Axis_ControlDlg::DoHomeSettings(int iAxis)
 	return 1;
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeX()
+void CAPP_EtherCAT_Axis_ControlDlg::DoHomeAction(int iAxis)
 {
-	if (m_bECATinitFlag)
+	bool bActionFlag = false;
+
+	for (int i = 0; i < TEST_SERVO_CNT; i++)
 	{
-		int iAxis = 0;
-		int nret = 0;
-		
-		if (SetIntrFlagFalse != NULL && SetIntrFlag != NULL)
+		if (g_u32mode[i] == MODE_IDLE || g_u32mode[i] == MODE_HOME)
 		{
-			nret = SetIntrFlagFalse();
-			if (nret > 0)
+			bActionFlag = true;
+		}
+	}
+
+	if (g_u32mode[iAxis] == MODE_HOME)
+	{
+		bActionFlag = false;
+		MessageBox(_T("Already homing!"));
+	}
+	
+	if (bActionFlag)
+	{
+		if (m_bECATinitFlag)
+		{
+			int nret = 0;
+			
+			if (SetIntrFlagFalse != NULL && SetIntrFlag != NULL)
 			{
-				nret = DoHomeSettings(iAxis);
+				nret = SetIntrFlagFalse();
 				if (nret > 0)
 				{
-					nret = DLLSetHome(iAxis);
+					nret = DoHomeSettings(iAxis);
 					if (nret > 0)
 					{
-						nret = SetIntrFlag();
+						nret = DLLSetHome(iAxis);
 						if (nret > 0)
 						{
-							nret = ECM_HeadInterruptClear();
+							nret = SetIntrFlag();
 							if (nret > 0)
 							{
-								m_bHomingFlag[iAxis] = true;
+								nret = ECM_HeadInterruptClear();
+								if (nret > 0)
+								{
+									m_bHomingFlag[iAxis] = true;
+								}
+								else
+								{
+									MessageBox(_T("ECM INTR CLR failed!"));
+								}
 							}
 							else
 							{
-								MessageBox(_T("ECM INTR CLR failed!"));
+								MessageBox(_T("Failed to enable the interrupt!"));
 							}
 						}
 						else
 						{
-							MessageBox(_T("Failed to enable the interrupt!"));
+							MessageBox(_T("Set Home mode failed!"));
 						}
 					}
 					else
 					{
-						MessageBox(_T("Set Home mode failed!"));
+						MessageBox(_T("Do Home setting failed!"));
 					}
 				}
 				else
 				{
-					MessageBox(_T("Do Home setting failed!"));
+					MessageBox(_T("Failed to disable the interrupt!"));
 				}
 			}
 			else
 			{
-				MessageBox(_T("Failed to disable the interrupt!"));
+				MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
 			}
 		}
 		else
 		{
-			MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
+			MessageBox(_T("EtherCAT should be initialize"));
 		}
 	}
 	else
 	{
-		MessageBox(_T("EtherCAT should be initialize"));
+		MessageBox(_T("Home must be all axis at idle/home mode!"));
 	}
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHmoeY()
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHomeX()
 {
-	if (m_bECATinitFlag)
-	{
-		int iAxis = 1;
-		int nret = 0;
-		
-		if (SetIntrFlagFalse != NULL && SetIntrFlag != NULL)
-		{
-			nret = SetIntrFlagFalse();
-			if (nret > 0)
-			{
-				nret = DoHomeSettings(iAxis);
-				if (nret > 0)
-				{
-					nret = DLLSetHome(iAxis);
-					if (nret > 0)
-					{
-						nret = SetIntrFlag();
-						if (nret > 0)
-						{
-							nret = ECM_HeadInterruptClear();
-							if (nret > 0)
-							{
-								m_bHomingFlag[iAxis] = true;
-							}
-							else
-							{
-								MessageBox(_T("ECM INTR CLR failed!"));
-							}
-						}
-						else
-						{
-							MessageBox(_T("Failed to enable the interrupt!"));
-						}
-					}
-					else
-					{
-						MessageBox(_T("Set Home mode failed!"));
-					}
-				}
-				else
-				{
-					MessageBox(_T("Do Home setting failed!"));
-				}
-			}
-			else
-			{
-				MessageBox(_T("Failed to disable the interrupt!"));
-			}
-		}
-		else
-		{
-			MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
-		}
-	}
-	else
-	{
-		MessageBox(_T("EtherCAT should be initialize"));
-	}
+	DoHomeAction(0);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonHomeY()
+{
+	DoHomeAction(1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
@@ -1956,34 +1928,178 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
 {
-	UpdateData(TRUE);
-	DLLSetMotion(0, m_dTarPosX);
+	if (g_u32mode[0] == MODE_IDLE)
+	{
+		bool bActionFlag = true;
+
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		{
+			if (m_bHomingFlag[i])
+			{
+				bActionFlag = false;
+			}
+		}
+
+		if (bActionFlag)
+		{
+			UpdateData(TRUE);
+			DLLSetMotion(0, m_dTarPosX);
+		}
+		else
+		{
+			MessageBox(_T("All axis must be not at home mode!"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("Axis 0 is not at idle mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY()
 {
-	UpdateData(TRUE);
-	DLLSetMotion(1, m_dTarPosY);
+	if (g_u32mode[1] == MODE_IDLE)
+	{
+		bool bActionFlag = true;
+
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		{
+			if (m_bHomingFlag[i])
+			{
+				bActionFlag = false;
+			}
+		}
+		
+		if (bActionFlag)
+		{
+			UpdateData(TRUE);
+			DLLSetMotion(1, m_dTarPosY);
+		}
+		else
+		{
+			MessageBox(_T("All axis must be not at home mode!"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("Axis 1 is not at idle mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft()
 {
-	DLLSetJog(0, -1);
+	if (g_u32mode[0] == MODE_IDLE)
+	{
+		bool bActionFlag = true;
+
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		{
+			if (m_bHomingFlag[i])
+			{
+				bActionFlag = false;
+			}
+		}
+		
+		if (bActionFlag)
+		{
+			DLLSetJog(0, -1);
+		}
+		else
+		{
+			MessageBox(_T("All axis must be not at home mode!"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("Axis 0 is not at idle mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight()
 {
-	DLLSetJog(0, 1);
+	if (g_u32mode[0] == MODE_IDLE)
+	{
+		bool bActionFlag = true;
+
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		{
+			if (m_bHomingFlag[i])
+			{
+				bActionFlag = false;
+			}
+		}
+		
+		if (bActionFlag)
+		{
+			DLLSetJog(0, 1);
+		}
+		else
+		{
+			MessageBox(_T("All axis must be not at home mode!"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("Axis 0 is not at idle mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp()
 {
-	DLLSetJog(1, 1);
+	if (g_u32mode[1] == MODE_IDLE)
+	{
+		bool bActionFlag = true;
+
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		{
+			if (m_bHomingFlag[i])
+			{
+				bActionFlag = false;
+			}
+		}
+		
+		if (bActionFlag)
+		{
+			DLLSetJog(1, 1);
+		}
+		else
+		{
+			MessageBox(_T("All axis must be not at home mode!"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("Axis 1 is not at idle mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown()
 {
-	DLLSetJog(1, -1);
+	if (g_u32mode[1] == MODE_IDLE)
+	{
+		bool bActionFlag = true;
+
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		{
+			if (m_bHomingFlag[i])
+			{
+				bActionFlag = false;
+			}
+		}
+		
+		if (bActionFlag)
+		{
+			DLLSetJog(1, -1);
+		}
+		else
+		{
+			MessageBox(_T("All axis must be not at home mode!"));
+		}
+	}
+	else
+	{
+		MessageBox(_T("Axis 1 is not at idle mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendX()

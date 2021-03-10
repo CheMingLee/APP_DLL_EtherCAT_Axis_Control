@@ -8,11 +8,6 @@
 #endif
 
 #include "resource.h"		// main symbols
-#include "PdoDefine.h"
-#include "EcmUsrDriver.h"
-#include "EcmDriver.h"
-
-#define PCI_DATA_MAX_SIZE 200
 
 // CAPP_EtherCAT_Axis_ControlApp:
 // See APP_EtherCAT_Axis_Control.cpp for the implementation of this class

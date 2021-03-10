@@ -1,6 +1,6 @@
 // APP_EtherCAT_Axis_ControlDlg.h : header file
 //
-
+#include "APP_EtherCAT_Axis_ControlDLLfunc.h"
 #pragma once
 
 // CAPP_EtherCAT_Axis_ControlDlg dialog
@@ -99,9 +99,8 @@ public:
 	void DllLoader();
 	double m_dTarPosX;
 	double m_dTarPosY;
-	double m_dCurPos[TEST_SERVO_CNT]; // mm
-	double m_dCmdPos[TEST_SERVO_CNT]; // mm
-	uint32_t m_u32mode[TEST_SERVO_CNT];
+	double m_dCurPos[TEST_SERVO_CNT];
+	double m_dCmdPos[TEST_SERVO_CNT];
 	uint32_t m_u32Input[TEST_SERVO_CNT];
 	void DLLSetParams(int iAxis);
 	int DLLSetHome(int iAxis);
@@ -111,13 +110,14 @@ public:
 	void DLLSetJogEnd(int iAxis);
 	int DoHomeSettings(int iAxis);
 	int DLLGetPosInfo(int iAxis, int *piCurPos, int *piCmdPos, uint32_t *pu32mode, uint32_t *pu32Input);
+	void DoHomeAction(int iAxis);
 
 public:
 	afx_msg void OnDestroy();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButtonParamsPage();
-	afx_msg void OnBnClickedButtonHmoeX();
-	afx_msg void OnBnClickedButtonHmoeY();
+	afx_msg void OnBnClickedButtonHomeX();
+	afx_msg void OnBnClickedButtonHomeY();
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnBnClickedButtonMotionX();
 	afx_msg void OnBnClickedButtonMotionY();
