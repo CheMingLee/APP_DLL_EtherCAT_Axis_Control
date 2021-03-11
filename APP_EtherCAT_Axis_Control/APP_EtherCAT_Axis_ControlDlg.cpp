@@ -118,6 +118,8 @@ BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_JOG_Y_DOWN, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown)
 	ON_BN_CLICKED(IDC_BUTTON_JOGEND_X, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendX)
 	ON_BN_CLICKED(IDC_BUTTON_JOGEND_Y, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendY)
+	ON_BN_CLICKED(IDC_BUTTON_SELECT_FILE, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonSelectFile)
+	ON_BN_CLICKED(IDC_BUTTON_RUN_FILE, &CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile)
 END_MESSAGE_MAP()
 
 
@@ -1184,14 +1186,6 @@ int CAPP_EtherCAT_Axis_ControlDlg::EtherCAT_Init()
 	{
 		return -1;
 	}
-	/*for(i = 0; i < TEST_SERVO_CNT; i++)
-	{
-		ECM_ShowPDOConfig(i,RxPDO_ASSIGN_IDX);
-	}
-	for(i = 0; i < TEST_SERVO_CNT; i++)
-	{
-		ECM_ShowPDOConfig(i,TxPDO_ASSIGN_IDX);
-	}*/
 	
 	// Change to SAFE-OP state
 	nret = ECM_StateCheck(0xFF, EC_STATE_SAFE_OP, 1000);
@@ -2125,4 +2119,20 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendX()
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendY()
 {
 	DLLSetJogEnd(1);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonSelectFile()
+{
+	TCHAR szFilters[] = _T("Text Files (*.txt)|*.txt|All Files (*.*)|*.*||");
+	CFileDialog fileDlg(TRUE, _T("txt"), _T("*.txt"), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY, szFilters);
+	if (fileDlg.DoModal() == IDOK)
+	{
+		m_strFilePath = fileDlg.GetPathName();
+	}
+	GetDlgItem()->SetWindowText(m_strFilePath);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
 }

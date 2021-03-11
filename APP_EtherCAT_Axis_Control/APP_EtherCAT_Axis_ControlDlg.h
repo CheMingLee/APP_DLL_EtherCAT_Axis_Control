@@ -112,6 +112,7 @@ public:
 	int DoHomeSettings(int iAxis);
 	int DLLGetPosInfo(int iAxis, int *piCurPos, int *piCmdPos, uint32_t *pu32mode, uint32_t *pu32Input);
 	void DoHomeAction(int iAxis);
+	CString m_strFilePath;
 
 public:
 	afx_msg void OnDestroy();
@@ -128,4 +129,6 @@ public:
 	afx_msg void OnBnClickedButtonJogYDown();
 	afx_msg void OnBnClickedButtonJogendX();
 	afx_msg void OnBnClickedButtonJogendY();
+	afx_msg void OnBnClickedButtonSelectFile();
+	afx_msg void OnBnClickedButtonRunFile();
 };
