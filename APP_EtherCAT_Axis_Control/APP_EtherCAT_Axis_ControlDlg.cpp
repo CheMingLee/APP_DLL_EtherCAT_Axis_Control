@@ -169,6 +169,7 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_X)->SetWindowText(_T("0"));
 	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_Y)->SetWindowText(_T("0"));
 
+	m_strFilePath = _T("");
 	int iRet = 0;
 	m_bTimerFlag = true;
 	m_bHomingFlag[0] = false;
@@ -2129,7 +2130,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonSelectFile()
 	{
 		m_strFilePath = fileDlg.GetPathName();
 	}
-	GetDlgItem()->SetWindowText(m_strFilePath);
+	GetDlgItem(IDC_STATIC_FILE_PATH)->SetWindowText(m_strFilePath);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()

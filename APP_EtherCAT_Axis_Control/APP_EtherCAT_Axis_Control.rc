@@ -213,10 +213,37 @@ BEGIN
     LTEXT           "Cmd Position:",IDC_STATIC,25,38,44,8
     LTEXT           "mm",IDC_STATIC,161,39,12,8
     PUSHBUTTON      "Select File",IDC_BUTTON_SELECT_FILE,186,124,50,14
-    LTEXT           "",IDC_STATIC_FILE_PATH,37,125,120,12,0,WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATIC_FILE_PATH,37,125,120,12,SS_PATHELLIPSIS,WS_EX_STATICEDGE
     LTEXT           "File Path:",IDC_STATIC,38,116,31,8
     PUSHBUTTON      "Run File",IDC_BUTTON_RUN_FILE,240,124,50,14
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 362
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 140
+    END
+END
+#endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -256,33 +283,6 @@ BEGIN
         VALUE "Translation", 0x409, 1252
     END
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_ABOUTBOX, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
-    END
-
-    IDD_APP_ETHERCAT_AXIS_CONTROL_DIALOG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 362
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 140
-    END
-END
-#endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////
