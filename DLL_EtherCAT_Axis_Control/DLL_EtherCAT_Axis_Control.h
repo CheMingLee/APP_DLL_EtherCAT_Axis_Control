@@ -29,6 +29,12 @@ typedef unsigned long long uint64_t;
 // DLL export
 #define DllExport __declspec(dllexport)
 
+// File cmd structure
+typedef struct file_cmd{
+	int m_iID;
+	double m_dParams[5];
+}FILE_CMD;
+
 // Params structure
 typedef struct motion_params{
 	double m_dJogSpeed;
@@ -77,4 +83,8 @@ public:
 	DllExport int GetDigInput(int iAxis, uint32_t *pu32DigInput);
 	DllExport int SetIntrFlagFalse();
 	DllExport int GetCmdPos(int iAxis, int *piCmdPos);
+	DllExport int SetRunFile(int iAxis);
+	DllExport int SetRunFileBeginPos(FILE_CMD Params);
+	DllExport int SetRunFileCmdCnt(int iFileCmdCnt);
+	DllExport int SetRunFileCmd(int iIndex, FILE_CMD Params);
 };

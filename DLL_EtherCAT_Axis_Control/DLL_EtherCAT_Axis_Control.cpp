@@ -234,3 +234,31 @@ DllExport int GetCmdPos(int iAxis, int *piCmdPos)
 	}
 	return bRet;
 }
+
+DllExport int SetRunFile(int iAxis)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE, (char *)&iAxis, 4);
+	return bRet;
+}
+
+DllExport int SetRunFileBeginPos(FILE_CMD Params)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE_BEGINPOS, (char *)&Params, sizeof(FILE_CMD));
+	return bRet;
+}
+
+DllExport int SetRunFileCmdCnt(int iFileCmdCnt)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE_CMDCNT, (char *)&iFileCmdCnt, 4);
+	return bRet;
+}
+
+DllExport int SetRunFileCmd(int iIndex, FILE_CMD Params)
+{
+	char DataBuf[128];
+
+	memcpy(DataBuf, &iIndex, 4);
+	memcpy(DataBuf + 4, &Params, sizeof(FILE_CMD));
+	int bRet = PCI_Write_Datas(CMD_SET_PARAMS, (char *)DataBuf, sizeof(FILE_CMD) + 4);
+	return bRet;
+}

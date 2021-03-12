@@ -34,6 +34,10 @@ FuncGetServoMode GetServoMode;
 FuncGetDigInput GetDigInput;
 FuncSetIntrFlagFalse SetIntrFlagFalse;
 FuncGetCmdPos GetCmdPos;
+FuncSetRunFile SetRunFile;
+FuncSetRunFileBeginPos SetRunFileBeginPos;
+FuncSetRunFileCmdCnt SetRunFileCmdCnt;
+FuncSetRunFileCmd SetRunFileCmd;
 
 uint32_t g_u32mode[TEST_SERVO_CNT];
 MOTION_PARAMS g_MotionParms[TEST_SERVO_CNT];
@@ -153,80 +157,7 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	CString strData;
-
-	strData.Format(_T("%.2f"), 0.0);
-	GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strData);
-	GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strData);
-	GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strData);
-	GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strData);
-	GetDlgItem(IDC_STATIC_MODE_X)->SetWindowText(_T("IDLE"));
-	GetDlgItem(IDC_STATIC_MODE_Y)->SetWindowText(_T("IDLE"));
-	GetDlgItem(IDC_STATIC_SENSOR_HMOE_X)->SetWindowText(_T("0"));
-	GetDlgItem(IDC_STATIC_SENSOR_HMOE_Y)->SetWindowText(_T("0"));
-	GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_X)->SetWindowText(_T("0"));
-	GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_Y)->SetWindowText(_T("0"));
-	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_X)->SetWindowText(_T("0"));
-	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_Y)->SetWindowText(_T("0"));
-
-	m_strFilePath = _T("");
-	int iRet = 0;
-	m_bTimerFlag = true;
-	m_bHomingFlag[0] = false;
-	m_bHomingFlag[1] = false;
-	m_bDLLflag = false;
-	m_bECATinitFlag = false;
-	
-	TCHAR CurPath[MAX_PATH] = { 0 };
-	GetCurrentDirectory(MAX_PATH, CurPath);
-	g_strIniPath.Format(_T("%s"), CurPath);
-	g_strIniPath.Append(_T("\\MotionParams.ini"));
-	
-	CString strAxis, strParamsData;
-	for (int i = 0; i < TEST_SERVO_CNT; i++)
-	{
-		strAxis.Format(_T("%d"), i);
-		GetPrivateProfileString(strAxis, _T("m_dJogSpeed"), _T("10"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dJogSpeed[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dJogAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dJogAcc[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dMotionSpeed"), _T("10"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dMotionSpeed[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dMotionAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dMotionAcc[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), _T("2"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dComeHomeSpeed[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), _T("5"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dLeftHomeSpeed[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dHomeAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_dHomeAcc[i] = _tstof(strParamsData);
-
-		GetPrivateProfileString(strAxis, _T("m_dAxisUnit"), _T("4000"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
-		strParamsData.ReleaseBuffer();
-		g_MotionParms[i].m_dAxisUnit = _tstof(strParamsData);
-
-		g_MotionParms[i].m_dAxisUnit = abs(g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dJogSpeed = abs(g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dJogAcc = abs(g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dMotionSpeed = abs(g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dMotionAcc = abs(g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dComeHomeSpeed = abs(g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dLeftHomeSpeed = abs(g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
-		g_MotionParms[i].m_dHomeAcc = abs(g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit);
-	}
+	InitialParams();
 	
 	DllLoader();
 
@@ -234,6 +165,7 @@ BOOL CAPP_EtherCAT_Axis_ControlDlg::OnInitDialog()
 	{
 		if (InitialDev != NULL)
 		{
+			int iRet = 0;
 			InitialDev();
 
 			for (int i = 0; i < TEST_SERVO_CNT; i++)
@@ -345,6 +277,89 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnPaint()
 HCURSOR CAPP_EtherCAT_Axis_ControlDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::InitialParams()
+{
+	CString strData;
+
+	strData.Format(_T("%.2f"), 0.0);
+	GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strData);
+	GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strData);
+	GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strData);
+	GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strData);
+	GetDlgItem(IDC_STATIC_MODE_X)->SetWindowText(_T("IDLE"));
+	GetDlgItem(IDC_STATIC_MODE_Y)->SetWindowText(_T("IDLE"));
+	GetDlgItem(IDC_STATIC_SENSOR_HMOE_X)->SetWindowText(_T("0"));
+	GetDlgItem(IDC_STATIC_SENSOR_HMOE_Y)->SetWindowText(_T("0"));
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_X)->SetWindowText(_T("0"));
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_Y)->SetWindowText(_T("0"));
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_X)->SetWindowText(_T("0"));
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_Y)->SetWindowText(_T("0"));
+
+	m_strFilePath = _T("");
+	m_FileCmd.m_iID = 0;
+	for (int i = 0; i < 5; i++)
+	{
+		m_FileCmd.m_dParams[i] = 0.0;
+	}
+
+	m_bTimerFlag = true;
+	m_bHomingFlag[0] = false;
+	m_bHomingFlag[1] = false;
+	m_bDLLflag = false;
+	m_bECATinitFlag = false;
+	
+	TCHAR CurPath[MAX_PATH] = { 0 };
+	GetCurrentDirectory(MAX_PATH, CurPath);
+	g_strIniPath.Format(_T("%s"), CurPath);
+	g_strIniPath.Append(_T("\\MotionParams.ini"));
+	
+	CString strAxis, strParamsData;
+	for (int i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		strAxis.Format(_T("%d"), i);
+		GetPrivateProfileString(strAxis, _T("m_dJogSpeed"), _T("10"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dJogSpeed[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dJogAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dJogAcc[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dMotionSpeed"), _T("10"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dMotionSpeed[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dMotionAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dMotionAcc[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dComeHomeSpeed"), _T("2"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dComeHomeSpeed[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dLeftHomeSpeed"), _T("5"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dLeftHomeSpeed[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dHomeAcc"), _T("500"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_dHomeAcc[i] = _tstof(strParamsData);
+
+		GetPrivateProfileString(strAxis, _T("m_dAxisUnit"), _T("4000"), strParamsData.GetBuffer(MAX_PATH), MAX_PATH, g_strIniPath);
+		strParamsData.ReleaseBuffer();
+		g_MotionParms[i].m_dAxisUnit = _tstof(strParamsData);
+
+		g_MotionParms[i].m_dAxisUnit = abs(g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dJogSpeed = abs(g_dJogSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dJogAcc = abs(g_dJogAcc[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dMotionSpeed = abs(g_dMotionSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dMotionAcc = abs(g_dMotionAcc[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dComeHomeSpeed = abs(g_dComeHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dLeftHomeSpeed = abs(g_dLeftHomeSpeed[i] * g_MotionParms[i].m_dAxisUnit);
+		g_MotionParms[i].m_dHomeAcc = abs(g_dHomeAcc[i] * g_MotionParms[i].m_dAxisUnit);
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::PciSpiDataExchange(uint8_t *pTxBuf, uint8_t *pRxBuf, uint32_t u32TotalPackSize)
@@ -1337,6 +1352,10 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		GetDigInput = (FuncGetDigInput)GetProcAddress(m_hinstLib, "GetDigInput");
 		SetIntrFlagFalse = (FuncSetIntrFlagFalse)GetProcAddress(m_hinstLib, "SetIntrFlagFalse");
 		GetCmdPos = (FuncGetCmdPos)GetProcAddress(m_hinstLib, "GetCmdPos");
+		SetRunFile = (FuncSetRunFile)GetProcAddress(m_hinstLib, "SetRunFile");
+		SetRunFileBeginPos = (FuncSetRunFileBeginPos)GetProcAddress(m_hinstLib, "SetRunFileBeginPos");
+		SetRunFileCmdCnt = (FuncSetRunFileCmdCnt)GetProcAddress(m_hinstLib, "SetRunFileCmdCnt");
+		SetRunFileCmd = (FuncSetRunFileCmd)GetProcAddress(m_hinstLib, "SetRunFileCmd");
 	}
 }
 
@@ -1415,7 +1434,6 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 		int iCmdPos = 0;
 		uint32_t u32mode = 0;
 		uint32_t u32Input = 0;
-		CString strPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLeft[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
 		
 		for (int i = 0; i < TEST_SERVO_CNT; i++)
 		{
@@ -1439,123 +1457,141 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 		}
 		else
 		{
-			strPos.Format(_T("%.2f"), m_dCurPos[0]);
-			GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strPos);
-			strPos.Format(_T("%.2f"), m_dCurPos[1]);
-			GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strPos);
-			strPos.Format(_T("%.2f"), m_dCmdPos[0]);
-			GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strPos);
-			strPos.Format(_T("%.2f"), m_dCmdPos[1]);
-			GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strPos);
-
+			ShowPosInfo();
+			// SDO: change mode (home -> csp)
 			for (int i = 0; i < TEST_SERVO_CNT; i++)
 			{
-				switch (g_u32mode[i])
-				{
-					case MODE_IDLE:
-					{
-						strMode[i] = _T("IDLE");
-						break;
-					}
-					case MODE_JOG:
-					{
-						strMode[i] = _T("JOG");
-						break;
-					}
-					case MODE_MOTION:
-					{
-						strMode[i] = _T("MOTION");
-						break;
-					}
-					case MODE_HOME:
-					{
-						strMode[i] = _T("HOME");
-						break;
-					}
-					case MODE_JOGEND:
-					{
-						strMode[i] = _T("JOG END");
-					}
-					default:
-						break;
-				}
-
-				if (m_u32Input[i] & DIGINPUT_LIMIT_LEFT)
-				{
-					strSensorLeft[i] = _T("1");
-				}
-				else
-				{
-					strSensorLeft[i] = _T("0");
-				}
-				
-				if (m_u32Input[i] & DIGINPUT_HMOE)
-				{
-					strSensorHome[i] = _T("1");
-				}
-				else
-				{
-					strSensorHome[i] = _T("0");
-				}
-
-				if (m_u32Input[i] & DIGINPUT_LIMIT_RIGHT)
-				{
-					strSensorRight[i] = _T("1");
-				}
-				else
-				{
-					strSensorRight[i] = _T("0");
-				}
-
-				// SDO: change mode (home -> csp)
-				if (m_bHomingFlag[i])
-				{
-					if (g_u32mode[i] == MODE_IDLE)
-					{
-						uint8_t u8CmdMode = 8;
-						
-						if (SetIntrFlagFalse != NULL && SetIntrFlag != NULL)
-						{
-							iRet = SetIntrFlagFalse();
-							if (iRet > 0)
-							{
-								iRet = ECM_EcatSdoReq(ECM_SDO_OP_WR, i, 0x6060, 0, 1, 7000000, &u8CmdMode);
-								if (iRet <= 0)
-								{
-									MessageBox(_T("Set CSP mode failed!"));
-								}
-								else
-								{
-									SetIntrFlag();
-									ECM_HeadInterruptClear();
-									m_bHomingFlag[i] = false;
-								}
-							}
-							else
-							{
-								MessageBox(_T("Failed to disable the interrupt!"));
-							}
-						}
-						else
-						{
-							MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
-						}
-					}
-				}
+				SDOHomeToCsp(i);
 			}
-
-			GetDlgItem(IDC_STATIC_MODE_X)->SetWindowText(strMode[0]);
-			GetDlgItem(IDC_STATIC_MODE_Y)->SetWindowText(strMode[1]);
-			GetDlgItem(IDC_STATIC_SENSOR_HMOE_X)->SetWindowText(strSensorHome[0]);
-			GetDlgItem(IDC_STATIC_SENSOR_HMOE_Y)->SetWindowText(strSensorHome[1]);
-			GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_X)->SetWindowText(strSensorRight[0]);
-			GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_Y)->SetWindowText(strSensorRight[1]);
-			GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_X)->SetWindowText(strSensorLeft[0]);
-			GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_Y)->SetWindowText(strSensorLeft[1]);
 		}
 	}
 
 	CDialog::OnTimer(nIDEvent);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::ShowPosInfo()
+{
+	CString strPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLeft[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
+	
+	strPos.Format(_T("%.2f"), m_dCurPos[0]);
+	GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strPos);
+	strPos.Format(_T("%.2f"), m_dCurPos[1]);
+	GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strPos);
+	strPos.Format(_T("%.2f"), m_dCmdPos[0]);
+	GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strPos);
+	strPos.Format(_T("%.2f"), m_dCmdPos[1]);
+	GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strPos);
+
+	for (int i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		switch (g_u32mode[i])
+		{
+			case MODE_IDLE:
+			{
+				strMode[i] = _T("IDLE");
+				break;
+			}
+			case MODE_JOG:
+			{
+				strMode[i] = _T("JOG");
+				break;
+			}
+			case MODE_MOTION:
+			{
+				strMode[i] = _T("MOTION");
+				break;
+			}
+			case MODE_HOME:
+			{
+				strMode[i] = _T("HOME");
+				break;
+			}
+			case MODE_JOGEND:
+			{
+				strMode[i] = _T("JOG END");
+			}
+			case MODE_RUNFILE:
+			{
+				strMode[i] = _T("RUN FILE");
+			}
+			default:
+				break;
+		}
+
+		if (m_u32Input[i] & DIGINPUT_LIMIT_LEFT)
+		{
+			strSensorLeft[i] = _T("1");
+		}
+		else
+		{
+			strSensorLeft[i] = _T("0");
+		}
+		
+		if (m_u32Input[i] & DIGINPUT_HMOE)
+		{
+			strSensorHome[i] = _T("1");
+		}
+		else
+		{
+			strSensorHome[i] = _T("0");
+		}
+
+		if (m_u32Input[i] & DIGINPUT_LIMIT_RIGHT)
+		{
+			strSensorRight[i] = _T("1");
+		}
+		else
+		{
+			strSensorRight[i] = _T("0");
+		}
+	}
+
+	GetDlgItem(IDC_STATIC_MODE_X)->SetWindowText(strMode[0]);
+	GetDlgItem(IDC_STATIC_MODE_Y)->SetWindowText(strMode[1]);
+	GetDlgItem(IDC_STATIC_SENSOR_HMOE_X)->SetWindowText(strSensorHome[0]);
+	GetDlgItem(IDC_STATIC_SENSOR_HMOE_Y)->SetWindowText(strSensorHome[1]);
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_X)->SetWindowText(strSensorRight[0]);
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT1_Y)->SetWindowText(strSensorRight[1]);
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_X)->SetWindowText(strSensorLeft[0]);
+	GetDlgItem(IDC_STATIC_SENSOR_LIMIT2_Y)->SetWindowText(strSensorLeft[1]);
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::SDOHomeToCsp(int iAxis)
+{
+	if (m_bHomingFlag[iAxis])
+	{
+		if (g_u32mode[iAxis] == MODE_IDLE)
+		{
+			uint8_t u8CmdMode = 8;
+			
+			if (SetIntrFlagFalse != NULL && SetIntrFlag != NULL)
+			{
+				int iRet = SetIntrFlagFalse();
+				if (iRet > 0)
+				{
+					iRet = ECM_EcatSdoReq(ECM_SDO_OP_WR, iAxis, 0x6060, 0, 1, 7000000, &u8CmdMode);
+					if (iRet <= 0)
+					{
+						MessageBox(_T("Set CSP mode failed!"));
+					}
+					else
+					{
+						SetIntrFlag();
+						ECM_HeadInterruptClear();
+						m_bHomingFlag[iAxis] = false;
+					}
+				}
+				else
+				{
+					MessageBox(_T("Failed to disable the interrupt!"));
+				}
+			}
+			else
+			{
+				MessageBox(_T("Unable to load DLL function: SetIntrFlagFalse"));
+			}
+		}
+	}
 }
 
 int CAPP_EtherCAT_Axis_ControlDlg::DLLGetPosInfo(int iAxis, int *piCurPos, int *piCmdPos, uint32_t *pu32mode, uint32_t *pu32Input)
@@ -2131,9 +2167,118 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonSelectFile()
 		m_strFilePath = fileDlg.GetPathName();
 	}
 	GetDlgItem(IDC_STATIC_FILE_PATH)->SetWindowText(m_strFilePath);
+	
+	if (m_strFilePath != _T(""))
+	{
+		ReadCommand();
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::ReadCommand()
+{
+	CFile FileTxtCmd;
+	CString strFileStr = _T("");
+	char strFileChar;
+	CString strFileCmd;
+	int iflag; // 逗點flag
+
+	m_arrCmdArray.RemoveAll();
+	FileTxtCmd.Open(m_strFilePath, CFile::modeRead);
+	while (FileTxtCmd.Read(&strFileChar, 1))
+	{
+		strFileStr = strFileStr + strFileChar;
+		if (strFileChar == '\n')
+		{
+			strFileCmd = strFileStr.SpanExcluding(_T(" "));
+			if (strFileCmd == "Begin")
+			{
+				m_FileCmd.m_iID = BEGIN;
+			}
+			else if (strFileCmd == "Speed")
+			{
+				m_FileCmd.m_iID = SPEED;
+			}
+			else if (strFileCmd == "Acc")
+			{
+				m_FileCmd.m_iID = ACC;
+			}
+			else if (strFileCmd == "LineXY")
+			{
+				m_FileCmd.m_iID = LINEXY;
+			}
+			else if (strFileCmd == "FLineXY")
+			{
+				m_FileCmd.m_iID = FLINEXY;
+			}
+			else if (strFileCmd == "ArcXY")
+			{
+				m_FileCmd.m_iID = ARCXY;
+			}
+			else if (strFileCmd == "FArcXY")
+			{
+				m_FileCmd.m_iID = FARCXY;
+			}
+			else if (strFileCmd.SpanExcluding(_T(" ,\r\n")) == "End")
+			{
+				m_FileCmd.m_iID = END;
+			}
+			else
+			{
+				MessageBox(_T("Cmd Error: 讀取命令中出現未定義的命令，略過此命令"));
+				strFileStr.Empty();
+				strFileCmd.Empty();
+			}
+			if (strFileStr.IsEmpty() == 0)
+			{
+				strFileStr = strFileStr.TrimLeft(strFileCmd).TrimLeft(_T(" ,\n"));
+				iflag = 0;
+				while (strFileStr.IsEmpty() == 0 && iflag < sizeof(m_FileCmd.m_dParams))
+				{
+					m_FileCmd.m_dParams[iflag] = _tstof(strFileStr.SpanExcluding(_T(" ,\n")));
+					if (iflag < 2)
+					{
+						m_FileCmd.m_dParams[iflag] = m_FileCmd.m_dParams[iflag] * g_MotionParms[iflag].m_dAxisUnit;
+					}
+					strFileStr = strFileStr.TrimLeft(strFileStr.SpanExcluding(_T(" ,\n"))).TrimLeft(_T(" ,\n"));
+					iflag++;
+				}
+				m_arrCmdArray.Add(m_FileCmd);
+				strFileStr.Empty();
+			}
+		}
+	}
+	FileTxtCmd.Close();
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
 {
-	// TODO: 在此加入控制項告知處理常式程式碼
+	if (m_strFilePath == _T(""))
+	{
+		MessageBox(_T("Please select command file!"));
+	}
+	else
+	{
+		if (m_arrCmdArray[0].m_iID == BEGIN)
+		{
+			// DLL CMD_SET_RUNFILE_CMDCNT
+			int iCnt;
+			iCnt = m_arrCmdArray.GetSize();
+			SetRunFileCmdCnt(m_arrCmdArray.GetSize());
+			// DLL CMD_SET_RUNFILE_BEGINPOS
+			SetRunFileBeginPos(m_arrCmdArray[0]);
+			// DLL CMD_SET_RUNFILE_CMD
+			for (int i = 0; i < iCnt; i++)
+			{
+				m_FileCmd = m_arrCmdArray[i];
+				SetRunFileCmd(i, m_FileCmd);
+			}
+			// DLL CMD_SET_RUNFILE
+			SetRunFile(0);
+			SetRunFile(1);
+		}
+		else
+		{
+			MessageBox(_T("First cmd should be Begin!"));
+		}
+	}
 }

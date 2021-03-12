@@ -25,11 +25,28 @@ typedef unsigned long long uint64_t;
 #define MODE_MOTION 2
 #define MODE_HOME 3
 #define MODE_JOGEND 4
+#define MODE_RUNFILE 5
 
 // digital input define
 #define DIGINPUT_LIMIT_LEFT 0x01
 #define DIGINPUT_LIMIT_RIGHT 0x02
 #define DIGINPUT_HMOE 0x04
+
+// Cmd file define
+#define BEGIN 0
+#define SPEED 1
+#define ACC 2
+#define LINEXY 3
+#define FLINEXY 4
+#define ARCXY 5
+#define FARCXY 6
+#define END 7
+
+// File cmd structure
+typedef struct file_cmd{
+	int m_iID;
+	double m_dParams[5];
+}FILE_CMD;
 
 // Params structure
 typedef struct motion_params{
@@ -75,6 +92,10 @@ typedef int (*FuncGetServoMode)(int, uint32_t *);
 typedef int (*FuncGetDigInput)(int, uint32_t *);
 typedef int (*FuncSetIntrFlagFalse)();
 typedef int (*FuncGetCmdPos)(int, int *);
+typedef int (*FuncSetRunFile)(int);
+typedef int (*FuncSetRunFileBeginPos)(FILE_CMD);
+typedef int (*FuncSetRunFileCmdCnt)(int);
+typedef int (*FuncSetRunFileCmd)(int, FILE_CMD);
 
 extern FuncDevInit InitialDev;
 extern FuncDevClose CloseDev;
@@ -97,5 +118,9 @@ extern FuncGetServoMode GetServoMode;
 extern FuncGetDigInput GetDigInput;
 extern FuncSetIntrFlagFalse SetIntrFlagFalse;
 extern FuncGetCmdPos GetCmdPos;
+extern FuncSetRunFile SetRunFile;
+extern FuncSetRunFileBeginPos SetRunFileBeginPos;
+extern FuncSetRunFileCmdCnt SetRunFileCmdCnt;
+extern FuncSetRunFileCmd SetRunFileCmd;
 
 extern CString g_strIniPath;

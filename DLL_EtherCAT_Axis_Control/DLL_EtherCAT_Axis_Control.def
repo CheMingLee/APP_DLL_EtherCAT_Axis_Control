@@ -25,3 +25,7 @@ GetServoMode @ 18
 GetDigInput @ 19
 SetIntrFlagFalse @ 20
 GetCmdPos @ 21
+SetRunFile @ 22
+SetRunFileBeginPos @ 23
+SetRunFileCmdCnt @ 24
+SetRunFileCmd @ 25
