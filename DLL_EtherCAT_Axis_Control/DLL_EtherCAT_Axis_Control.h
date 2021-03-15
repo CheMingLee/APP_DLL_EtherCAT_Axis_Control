@@ -83,8 +83,8 @@ public:
 	DllExport int GetDigInput(int iAxis, uint32_t *pu32DigInput);
 	DllExport int SetIntrFlagFalse();
 	DllExport int GetCmdPos(int iAxis, int *piCmdPos);
-	DllExport int SetRunFile(int iAxis);
-	DllExport int SetRunFileBeginPos(FILE_CMD Params);
+	DllExport int SetRunFile();
+	DllExport int GetRunFileBeginPosFlag(int iAxis, bool *pbBegPosFlag);
 	DllExport int SetRunFileCmdCnt(int iFileCmdCnt);
 	DllExport int SetRunFileCmd(int iIndex, FILE_CMD Params);
 };

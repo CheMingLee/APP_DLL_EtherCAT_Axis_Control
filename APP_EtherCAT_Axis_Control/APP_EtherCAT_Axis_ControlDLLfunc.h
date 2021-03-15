@@ -92,8 +92,8 @@ typedef int (*FuncGetServoMode)(int, uint32_t *);
 typedef int (*FuncGetDigInput)(int, uint32_t *);
 typedef int (*FuncSetIntrFlagFalse)();
 typedef int (*FuncGetCmdPos)(int, int *);
-typedef int (*FuncSetRunFile)(int);
-typedef int (*FuncSetRunFileBeginPos)(FILE_CMD);
+typedef int (*FuncSetRunFile)();
+typedef int (*FuncGetRunFileBeginPosFlag)(int, bool *);
 typedef int (*FuncSetRunFileCmdCnt)(int);
 typedef int (*FuncSetRunFileCmd)(int, FILE_CMD);
 
@@ -119,7 +119,7 @@ extern FuncGetDigInput GetDigInput;
 extern FuncSetIntrFlagFalse SetIntrFlagFalse;
 extern FuncGetCmdPos GetCmdPos;
 extern FuncSetRunFile SetRunFile;
-extern FuncSetRunFileBeginPos SetRunFileBeginPos;
+extern FuncGetRunFileBeginPosFlag GetRunFileBeginPosFlag;
 extern FuncSetRunFileCmdCnt SetRunFileCmdCnt;
 extern FuncSetRunFileCmd SetRunFileCmd;
 

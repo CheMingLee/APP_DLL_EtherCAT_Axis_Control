@@ -35,7 +35,7 @@ FuncGetDigInput GetDigInput;
 FuncSetIntrFlagFalse SetIntrFlagFalse;
 FuncGetCmdPos GetCmdPos;
 FuncSetRunFile SetRunFile;
-FuncSetRunFileBeginPos SetRunFileBeginPos;
+FuncGetRunFileBeginPosFlag GetRunFileBeginPosFlag;
 FuncSetRunFileCmdCnt SetRunFileCmdCnt;
 FuncSetRunFileCmd SetRunFileCmd;
 
@@ -304,6 +304,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::InitialParams()
 		m_FileCmd.m_dParams[i] = 0.0;
 	}
 
+	m_bRunFileFlag = false;
 	m_bTimerFlag = true;
 	m_bHomingFlag[0] = false;
 	m_bHomingFlag[1] = false;
@@ -1353,7 +1354,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		SetIntrFlagFalse = (FuncSetIntrFlagFalse)GetProcAddress(m_hinstLib, "SetIntrFlagFalse");
 		GetCmdPos = (FuncGetCmdPos)GetProcAddress(m_hinstLib, "GetCmdPos");
 		SetRunFile = (FuncSetRunFile)GetProcAddress(m_hinstLib, "SetRunFile");
-		SetRunFileBeginPos = (FuncSetRunFileBeginPos)GetProcAddress(m_hinstLib, "SetRunFileBeginPos");
+		GetRunFileBeginPosFlag = (FuncGetRunFileBeginPosFlag)GetProcAddress(m_hinstLib, "GetRunFileBeginPosFlag");
 		SetRunFileCmdCnt = (FuncSetRunFileCmdCnt)GetProcAddress(m_hinstLib, "SetRunFileCmdCnt");
 		SetRunFileCmd = (FuncSetRunFileCmd)GetProcAddress(m_hinstLib, "SetRunFileCmd");
 	}
@@ -1509,10 +1510,12 @@ void CAPP_EtherCAT_Axis_ControlDlg::ShowPosInfo()
 			case MODE_JOGEND:
 			{
 				strMode[i] = _T("JOG END");
+				break;
 			}
 			case MODE_RUNFILE:
 			{
 				strMode[i] = _T("RUN FILE");
+				break;
 			}
 			default:
 				break;
@@ -1751,7 +1754,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::DLLSetMotion(int iAxis, double dTarPos)
 	{
 		if (SetMotion != NULL)
 		{
-			iRet = SetMotion(iAxis, dTarPos * g_MotionParms[iAxis].m_dAxisUnit);
+			iRet = SetMotion(iAxis, dTarPos);
 			if (!iRet)
 			{
 				strError.Format(_T("Axis %d: Move to %.2f failed!"), iAxis, dTarPos);
@@ -1970,6 +1973,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
 {
 	DLLSetStop(0);
 	DLLSetStop(1);
+	m_bRunFileFlag = false;
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
@@ -1989,7 +1993,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
 		if (bActionFlag)
 		{
 			UpdateData(TRUE);
-			DLLSetMotion(0, m_dTarPosX);
+			DLLSetMotion(0, m_dTarPosX * g_MotionParms[0].m_dAxisUnit);
 		}
 		else
 		{
@@ -2019,7 +2023,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY()
 		if (bActionFlag)
 		{
 			UpdateData(TRUE);
-			DLLSetMotion(1, m_dTarPosY);
+			DLLSetMotion(1, m_dTarPosY * g_MotionParms[1].m_dAxisUnit);
 		}
 		else
 		{
@@ -2250,6 +2254,16 @@ void CAPP_EtherCAT_Axis_ControlDlg::ReadCommand()
 	FileTxtCmd.Close();
 }
 
+void CAPP_EtherCAT_Axis_ControlDlg::SetPeekMsg()
+{
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
+
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
 {
 	if (m_strFilePath == _T(""))
@@ -2259,22 +2273,47 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
 	else
 	{
 		if (m_arrCmdArray[0].m_iID == BEGIN)
-		{
-			// DLL CMD_SET_RUNFILE_CMDCNT
-			int iCnt;
-			iCnt = m_arrCmdArray.GetSize();
-			SetRunFileCmdCnt(m_arrCmdArray.GetSize());
-			// DLL CMD_SET_RUNFILE_BEGINPOS
-			SetRunFileBeginPos(m_arrCmdArray[0]);
-			// DLL CMD_SET_RUNFILE_CMD
-			for (int i = 0; i < iCnt; i++)
+		{	
+			int iCmdIndex, iCmdBufIndex, iCnt;
+			bool bBegPosFlagX, bBegPosFlagY;
+			bBegPosFlagX = false;
+			bBegPosFlagY = false;
+			
+			iCmdIndex = 0;
+			DLLSetMotion(0, m_arrCmdArray[iCmdIndex].m_dParams[0]);
+			DLLSetMotion(1, m_arrCmdArray[iCmdIndex].m_dParams[1]);
+			
+			m_bRunFileFlag = true;
+
+			while (!bBegPosFlagX || !bBegPosFlagY)
 			{
-				m_FileCmd = m_arrCmdArray[i];
-				SetRunFileCmd(i, m_FileCmd);
+				SetPeekMsg();
+				GetRunFileBeginPosFlag(0, &bBegPosFlagX);
+				GetRunFileBeginPosFlag(1, &bBegPosFlagY);
 			}
-			// DLL CMD_SET_RUNFILE
-			SetRunFile(0);
-			SetRunFile(1);
+
+			iCnt = 10;
+			if (m_arrCmdArray.GetSize() < iCnt)
+			{
+				iCnt = m_arrCmdArray.GetSize();
+			}
+			
+			for (iCmdIndex = 1; iCmdIndex < iCnt; iCmdIndex++)
+			{
+				iCmdBufIndex = iCmdIndex - 1;
+				m_FileCmd = m_arrCmdArray[iCmdIndex];
+				SetRunFileCmd(iCmdBufIndex, m_FileCmd);
+			}
+
+			SetRunFile();
+
+			// while (iCmdIndex < m_arrCmdArray.GetSize())
+			// {
+			// 	SetPeekMsg();
+			// 	// GET cmdbufCnt
+			// 	m_FileCmd = m_arrCmdArray[iCmdIndex];
+			// 	// SetRunFileCmd(iCmdBufIndex, m_FileCmd);
+			// }
 		}
 		else
 		{

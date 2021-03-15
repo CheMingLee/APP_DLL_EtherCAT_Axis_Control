@@ -119,6 +119,8 @@ public:
 	FILE_CMD m_FileCmd;
 	void SDOHomeToCsp(int iAxis);
 	void ShowPosInfo();
+	bool m_bRunFileFlag;
+	void SetPeekMsg();
 
 public:
 	afx_msg void OnDestroy();
