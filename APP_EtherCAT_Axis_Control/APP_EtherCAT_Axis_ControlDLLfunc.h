@@ -94,7 +94,7 @@ typedef int (*FuncSetIntrFlagFalse)();
 typedef int (*FuncGetCmdPos)(int, int *);
 typedef int (*FuncSetRunFile)();
 typedef int (*FuncGetRunFileBeginPosFlag)(int, bool *);
-typedef int (*FuncSetRunFileCmdCnt)(int);
+typedef int (*FuncGetRunFileCmdIndex)(int *);
 typedef int (*FuncSetRunFileCmd)(int, FILE_CMD);
 
 extern FuncDevInit InitialDev;
@@ -120,7 +120,7 @@ extern FuncSetIntrFlagFalse SetIntrFlagFalse;
 extern FuncGetCmdPos GetCmdPos;
 extern FuncSetRunFile SetRunFile;
 extern FuncGetRunFileBeginPosFlag GetRunFileBeginPosFlag;
-extern FuncSetRunFileCmdCnt SetRunFileCmdCnt;
+extern FuncGetRunFileCmdIndex GetRunFileCmdIndex;
 extern FuncSetRunFileCmd SetRunFileCmd;
 
 extern CString g_strIniPath;

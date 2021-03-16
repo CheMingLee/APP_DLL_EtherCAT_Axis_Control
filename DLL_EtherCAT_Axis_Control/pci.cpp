@@ -533,6 +533,7 @@ BOOL PCI_CheckReplay(unsigned short usCmd)
 		case CMD_GET_DIGINPUT:
 		case CMD_GET_CMDPOS:
 		case CMD_GET_RUNFILE_BEGINPOS_FLAG:
+		case CMD_GET_RUNFILE_CMDIDX:
 		{
 			bReBack = TRUE;
 			break;

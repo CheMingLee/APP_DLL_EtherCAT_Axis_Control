@@ -27,5 +27,5 @@ SetIntrFlagFalse @ 20
 GetCmdPos @ 21
 SetRunFile @ 22
 GetRunFileBeginPosFlag @ 23
-SetRunFileCmdCnt @ 24
+GetRunFileCmdIndex @ 24
 SetRunFileCmd @ 25

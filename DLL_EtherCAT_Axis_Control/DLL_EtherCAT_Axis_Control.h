@@ -85,6 +85,6 @@ public:
 	DllExport int GetCmdPos(int iAxis, int *piCmdPos);
 	DllExport int SetRunFile();
 	DllExport int GetRunFileBeginPosFlag(int iAxis, bool *pbBegPosFlag);
-	DllExport int SetRunFileCmdCnt(int iFileCmdCnt);
-	DllExport int SetRunFileCmd(int iIndex, FILE_CMD Params);
+	DllExport int GetRunFileCmdIndex(int *piCmdIndex);
+	DllExport int SetRunFileCmd(int iIndex, FILE_CMD Cmd);
 };

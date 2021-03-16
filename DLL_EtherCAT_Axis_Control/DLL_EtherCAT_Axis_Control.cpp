@@ -1,4 +1,4 @@
-// DLL_EtherCAT_Axis_Control.cpp : 定義 DLL 的初始化常式。
+// DLL_EtherCAT_Axis_Control.cpp
 //
 
 #include "stdafx.h"
@@ -7,31 +7,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
-//
-//TODO: 如果這個 DLL 是動態地對 MFC DLL 連結，
-//		那麼從這個 DLL 匯出的任何會呼叫
-//		MFC 內部的函式，都必須在函式一開頭加上 AFX_MANAGE_STATE
-//		巨集。
-//
-//		例如:
-//
-//		extern "C" BOOL PASCAL EXPORT ExportedFunction()
-//		{
-//			AFX_MANAGE_STATE(AfxGetStaticModuleState());
-//			// 此處為正常函式主體
-//		}
-//
-//		這個巨集一定要出現在每一個
-//		函式中，才能夠呼叫 MFC 的內部。這意味著
-//		它必須是函式內的第一個陳述式
-//		，甚至必須在任何物件變數宣告前面
-//		，因為它們的建構函式可能會產生對 MFC
-//		DLL 內部的呼叫。
-//
-//		請參閱 MFC 技術提示 33 和 58 中的
-//		詳細資料。
-//
 
 // CDLL_EtherCAT_Axis_ControlApp
 
@@ -252,18 +227,23 @@ DllExport int GetRunFileBeginPosFlag(int iAxis, bool *pbBegPosFlag)
 	return bRet;
 }
 
-DllExport int SetRunFileCmdCnt(int iFileCmdCnt)
+DllExport int GetRunFileCmdIndex(int *piCmdIndex)
 {
-	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE_CMDCNT, (char *)&iFileCmdCnt, 4);
+	int iDataBuf = 0;
+	int bRet = PCI_Write_Datas(CMD_GET_RUNFILE_CMDIDX, (char *)&iDataBuf, 4);
+	if (bRet)
+	{
+		memcpy(piCmdIndex, g_DevPMC6.m_ReadBuffer, 4);
+	}
 	return bRet;
 }
 
-DllExport int SetRunFileCmd(int iIndex, FILE_CMD Params)
+DllExport int SetRunFileCmd(int iIndex, FILE_CMD Cmd)
 {
 	char DataBuf[128];
 
 	memcpy(DataBuf, &iIndex, 4);
-	memcpy(DataBuf + 4, &Params, sizeof(FILE_CMD));
-	int bRet = PCI_Write_Datas(CMD_SET_PARAMS, (char *)DataBuf, sizeof(FILE_CMD) + 4);
+	memcpy(DataBuf + 4, &Cmd, sizeof(FILE_CMD));
+	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE_CMD, (char *)DataBuf, sizeof(FILE_CMD) + 4);
 	return bRet;
 }
