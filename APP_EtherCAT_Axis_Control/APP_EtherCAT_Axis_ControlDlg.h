@@ -121,6 +121,7 @@ public:
 	void ShowPosInfo();
 	bool m_bRunFileFlag;
 	void SetPeekMsg();
+	double m_dThetaMax;
 
 public:
 	afx_msg void OnDestroy();

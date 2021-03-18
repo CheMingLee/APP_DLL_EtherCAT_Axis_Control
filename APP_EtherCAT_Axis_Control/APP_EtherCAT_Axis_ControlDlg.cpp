@@ -91,7 +91,7 @@ CAPP_EtherCAT_Axis_ControlDlg::CAPP_EtherCAT_Axis_ControlDlg(CWnd* pParent /*=NU
 	: CDialog(CAPP_EtherCAT_Axis_ControlDlg::IDD, pParent)
 	, m_dTarPosX(0)
 	, m_dTarPosY(0)
-
+	, m_dThetaMax(15)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -101,6 +101,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT_TAR_X, m_dTarPosX);
 	DDX_Text(pDX, IDC_EDIT_TAR_Y, m_dTarPosY);
+	DDX_Text(pDX, IDC_EDIT_LIMIT_ANG, m_dThetaMax);
 }
 
 BEGIN_MESSAGE_MAP(CAPP_EtherCAT_Axis_ControlDlg, CDialog)
@@ -2239,7 +2240,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::ReadCommand()
 				while (strFileStr.IsEmpty() == 0 && iflag < sizeof(m_FileCmd.m_dParams))
 				{
 					m_FileCmd.m_dParams[iflag] = _tstof(strFileStr.SpanExcluding(_T(" ,\n")));
-					if (iflag < 2)
+					if (iflag < 4)
 					{
 						m_FileCmd.m_dParams[iflag] = m_FileCmd.m_dParams[iflag] * g_MotionParms[iflag].m_dAxisUnit;
 					}
@@ -2266,6 +2267,18 @@ void CAPP_EtherCAT_Axis_ControlDlg::SetPeekMsg()
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
 {
+	//UpdateData(TRUE);
+	//if (m_dThetaMax > 30)
+	//{
+	//	MessageBox(_T("Max limit angle is 30 degree!"));
+	//	// DLL Get Limit angle
+	//	UpdateData(FALSE);
+	//}
+	//else
+	//{
+	//	// DLL Set Limit angle
+	//}
+	
 	if (m_strFilePath == _T(""))
 	{
 		MessageBox(_T("Please select command file!"));

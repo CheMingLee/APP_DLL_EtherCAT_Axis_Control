@@ -54,6 +54,7 @@
 #define IDC_STATIC_FILE_PATH            1027
 #define IDC_BUTTON2                     1028
 #define IDC_BUTTON_RUN_FILE             1028
+#define IDC_EDIT_LIMIT_ANG              1029
 
 // Next default values for new objects
 // 
