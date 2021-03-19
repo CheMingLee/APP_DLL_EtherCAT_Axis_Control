@@ -122,6 +122,11 @@ public:
 	bool m_bRunFileFlag;
 	void SetPeekMsg();
 	double m_dThetaMax;
+	void UpdatePosInfo();
+	void CloseRunFile();
+	void DoMotionAction(int iAxis);
+	void DoJogAction(int iAxis, int iDirection);
+	void DoRunFileAction();
 
 public:
 	afx_msg void OnDestroy();

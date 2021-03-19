@@ -247,3 +247,20 @@ DllExport int SetRunFileCmd(int iIndex, FILE_CMD Cmd)
 	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE_CMD, (char *)DataBuf, sizeof(FILE_CMD) + 4);
 	return bRet;
 }
+
+DllExport int SetRunFileLimAng(double dLimAng)
+{
+	int bRet = PCI_Write_Datas(CMD_SET_RUNFILE_LIM_ANG, (char *)&dLimAng, 8);
+	return bRet;
+}
+
+DllExport int GetRunFileLimAng(double *pdLimAng)
+{
+	int iDataBuf = 0;
+	int bRet = PCI_Write_Datas(CMD_GET_RUNFILE_LIM_ANG, (char *)&iDataBuf, 4);
+	if (bRet)
+	{
+		memcpy(pdLimAng, g_DevPMC6.m_ReadBuffer, 8);
+	}
+	return bRet;
+}

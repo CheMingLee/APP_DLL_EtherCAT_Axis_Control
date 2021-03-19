@@ -87,4 +87,6 @@ public:
 	DllExport int GetRunFileBeginPosFlag(int iAxis, bool *pbBegPosFlag);
 	DllExport int GetRunFileCmdIndex(int *piCmdIndex);
 	DllExport int SetRunFileCmd(int iIndex, FILE_CMD Cmd);
+	DllExport int SetRunFileLimAng(double dLimAng);
+	DllExport int GetRunFileLimAng(double *pdLimAng);
 };

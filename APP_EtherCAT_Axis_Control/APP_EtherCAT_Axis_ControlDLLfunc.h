@@ -96,6 +96,8 @@ typedef int (*FuncSetRunFile)();
 typedef int (*FuncGetRunFileBeginPosFlag)(int, bool *);
 typedef int (*FuncGetRunFileCmdIndex)(int *);
 typedef int (*FuncSetRunFileCmd)(int, FILE_CMD);
+typedef int (*FuncSetRunFileLimAng)(double);
+typedef int (*FuncGetRunFileLimAng)(double *);
 
 extern FuncDevInit InitialDev;
 extern FuncDevClose CloseDev;
@@ -122,5 +124,7 @@ extern FuncSetRunFile SetRunFile;
 extern FuncGetRunFileBeginPosFlag GetRunFileBeginPosFlag;
 extern FuncGetRunFileCmdIndex GetRunFileCmdIndex;
 extern FuncSetRunFileCmd SetRunFileCmd;
+extern FuncSetRunFileLimAng SetRunFileLimAng;
+extern FuncGetRunFileLimAng GetRunFileLimAng;
 
 extern CString g_strIniPath;

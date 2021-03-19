@@ -38,6 +38,8 @@ FuncSetRunFile SetRunFile;
 FuncGetRunFileBeginPosFlag GetRunFileBeginPosFlag;
 FuncGetRunFileCmdIndex GetRunFileCmdIndex;
 FuncSetRunFileCmd SetRunFileCmd;
+FuncSetRunFileLimAng SetRunFileLimAng;
+FuncGetRunFileLimAng GetRunFileLimAng;
 
 uint32_t g_u32mode[TEST_SERVO_CNT];
 MOTION_PARAMS g_MotionParms[TEST_SERVO_CNT];
@@ -1358,6 +1360,8 @@ void CAPP_EtherCAT_Axis_ControlDlg::DllLoader()
 		GetRunFileBeginPosFlag = (FuncGetRunFileBeginPosFlag)GetProcAddress(m_hinstLib, "GetRunFileBeginPosFlag");
 		GetRunFileCmdIndex = (FuncGetRunFileCmdIndex)GetProcAddress(m_hinstLib, "GetRunFileCmdIndex");
 		SetRunFileCmd = (FuncSetRunFileCmd)GetProcAddress(m_hinstLib, "SetRunFileCmd");
+		SetRunFileLimAng = (FuncSetRunFileLimAng)GetProcAddress(m_hinstLib, "SetRunFileLimAng");
+		GetRunFileLimAng = (FuncGetRunFileLimAng)GetProcAddress(m_hinstLib, "GetRunFileLimAng");
 	}
 }
 
@@ -1431,27 +1435,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 0)
 	{
-		int iRet;
-		int iCurPos = 0;
-		int iCmdPos = 0;
-		uint32_t u32mode = 0;
-		uint32_t u32Input = 0;
-		
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
-		{
-			iRet = DLLGetPosInfo(i, &iCurPos, &iCmdPos, &u32mode, &u32Input);
-			if (iRet > 0)
-			{
-				m_dCurPos[i] = (double)iCurPos / g_MotionParms[i].m_dAxisUnit;
-				m_dCmdPos[i] = (double)iCmdPos / g_MotionParms[i].m_dAxisUnit;
-				g_u32mode[i] = u32mode;
-				m_u32Input[i] = u32Input;
-			}
-			else
-			{
-				m_bTimerFlag = false;
-			}
-		}
+		UpdatePosInfo();
 
 		if (!m_bTimerFlag)
 		{
@@ -1465,23 +1449,61 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnTimer(UINT_PTR nIDEvent)
 			{
 				SDOHomeToCsp(i);
 			}
+			// close RunFile mode
+			CloseRunFile();
 		}
 	}
 
 	CDialog::OnTimer(nIDEvent);
 }
 
+void CAPP_EtherCAT_Axis_ControlDlg::CloseRunFile()
+{
+	if (m_bRunFileFlag)
+	{
+		if (g_u32mode[0] == MODE_IDLE && g_u32mode[1] == MODE_IDLE)
+		{
+			m_bRunFileFlag = false;
+		}
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::UpdatePosInfo()
+{
+	int iRet;
+	int iCurPos = 0;
+	int iCmdPos = 0;
+	uint32_t u32mode = 0;
+	uint32_t u32Input = 0;
+
+	for (int i = 0; i < TEST_SERVO_CNT; i++)
+	{
+		iRet = DLLGetPosInfo(i, &iCurPos, &iCmdPos, &u32mode, &u32Input);
+		if (iRet > 0)
+		{
+			m_dCurPos[i] = (double)iCurPos / g_MotionParms[i].m_dAxisUnit;
+			m_dCmdPos[i] = (double)iCmdPos / g_MotionParms[i].m_dAxisUnit;
+			g_u32mode[i] = u32mode;
+			m_u32Input[i] = u32Input;
+		}
+		else
+		{
+			m_bTimerFlag = false;
+		}
+	}
+}
+
 void CAPP_EtherCAT_Axis_ControlDlg::ShowPosInfo()
 {
 	CString strPos, strMode[TEST_SERVO_CNT], strSensorHome[TEST_SERVO_CNT], strSensorLeft[TEST_SERVO_CNT], strSensorRight[TEST_SERVO_CNT];
 	
-	strPos.Format(_T("%.2f"), m_dCurPos[0]);
+	strPos.Format(_T("%.4f"), m_dCurPos[0]);
 	GetDlgItem(IDC_STATIC_CUR_X)->SetWindowText(strPos);
-	strPos.Format(_T("%.2f"), m_dCurPos[1]);
+	strPos.Format(_T("%.4f"), m_dCurPos[1]);
 	GetDlgItem(IDC_STATIC_CUR_Y)->SetWindowText(strPos);
-	strPos.Format(_T("%.2f"), m_dCmdPos[0]);
+	strPos.Format(_T("%.4f"), m_dCmdPos[0]);
 	GetDlgItem(IDC_STATIC_CMD_X)->SetWindowText(strPos);
-	strPos.Format(_T("%.2f"), m_dCmdPos[1]);
+	strPos.Format(_T("%.4f"), m_dCmdPos[1]);
 	GetDlgItem(IDC_STATIC_CMD_Y)->SetWindowText(strPos);
 
 	for (int i = 0; i < TEST_SERVO_CNT; i++)
@@ -1801,7 +1823,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::DLLSetJog(int iAxis, int iDirection)
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::DLLSetJogEnd(int iAxis)
-{
+{	
 	int iRet;
 	CString strError;
 	
@@ -1880,18 +1902,26 @@ void CAPP_EtherCAT_Axis_ControlDlg::DoHomeAction(int iAxis)
 {
 	bool bActionFlag = false;
 
-	for (int i = 0; i < TEST_SERVO_CNT; i++)
+	if (!m_bRunFileFlag)
 	{
-		if (g_u32mode[i] == MODE_IDLE || g_u32mode[i] == MODE_HOME)
+		for (int i = 0; i < TEST_SERVO_CNT; i++)
 		{
-			bActionFlag = true;
+			if (g_u32mode[i] == MODE_IDLE || g_u32mode[i] == MODE_HOME)
+			{
+				bActionFlag = true;
+			}
+			else
+			{
+				bActionFlag = false;
+				break;
+			}
 		}
-	}
 
-	if (g_u32mode[iAxis] == MODE_HOME)
-	{
-		bActionFlag = false;
-		MessageBox(_T("Already homing!"));
+		if (g_u32mode[iAxis] == MODE_HOME)
+		{
+			bActionFlag = false;
+			MessageBox(_T("Already homing!"));
+		}
 	}
 	
 	if (bActionFlag)
@@ -1977,190 +2007,131 @@ void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonStop()
 	m_bRunFileFlag = false;
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
+void CAPP_EtherCAT_Axis_ControlDlg::DoMotionAction(int iAxis)
 {
-	if (g_u32mode[0] == MODE_IDLE)
+	if (!m_bRunFileFlag)
 	{
-		bool bActionFlag = true;
-
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
+		if (g_u32mode[iAxis] == MODE_IDLE)
 		{
-			if (m_bHomingFlag[i])
+			bool bActionFlag = true;
+
+			for (int i = 0; i < TEST_SERVO_CNT; i++)
 			{
-				bActionFlag = false;
+				if (m_bHomingFlag[iAxis])
+				{
+					bActionFlag = false;
+				}
 			}
-		}
 
-		if (bActionFlag)
-		{
-			UpdateData(TRUE);
-			DLLSetMotion(0, m_dTarPosX * g_MotionParms[0].m_dAxisUnit);
+			if (bActionFlag)
+			{
+				UpdateData(TRUE);
+				DLLSetMotion(iAxis, m_dTarPosX * g_MotionParms[iAxis].m_dAxisUnit);
+			}
+			else
+			{
+				MessageBox(_T("All axis must be not at home mode!"));
+			}
 		}
 		else
 		{
-			MessageBox(_T("All axis must be not at home mode!"));
+			MessageBox(_T("This axis is not at idle mode!"));
 		}
 	}
 	else
 	{
-		MessageBox(_T("Axis 0 is not at idle mode!"));
+		MessageBox(_T("This axis is at run file mode!"));
 	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionX()
+{
+	DoMotionAction(0);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonMotionY()
 {
-	if (g_u32mode[1] == MODE_IDLE)
-	{
-		bool bActionFlag = true;
+	DoMotionAction(1);
+}
 
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
+void CAPP_EtherCAT_Axis_ControlDlg::DoJogAction(int iAxis, int iDirection)
+{
+	if (!m_bRunFileFlag)
+	{
+		if (g_u32mode[iAxis] == MODE_IDLE)
 		{
-			if (m_bHomingFlag[i])
+			bool bActionFlag = true;
+
+			for (int i = 0; i < TEST_SERVO_CNT; i++)
 			{
-				bActionFlag = false;
+				if (m_bHomingFlag[i])
+				{
+					bActionFlag = false;
+				}
 			}
-		}
-		
-		if (bActionFlag)
-		{
-			UpdateData(TRUE);
-			DLLSetMotion(1, m_dTarPosY * g_MotionParms[1].m_dAxisUnit);
+			
+			if (bActionFlag)
+			{
+				DLLSetJog(iAxis, iDirection);
+			}
+			else
+			{
+				MessageBox(_T("All axis must be not at home mode!"));
+			}
 		}
 		else
 		{
-			MessageBox(_T("All axis must be not at home mode!"));
+			MessageBox(_T("This axis is not at idle mode!"));
 		}
 	}
 	else
 	{
-		MessageBox(_T("Axis 1 is not at idle mode!"));
+		MessageBox(_T("This axis is at run file mode!"));
 	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXLeft()
 {
-	if (g_u32mode[0] == MODE_IDLE)
-	{
-		bool bActionFlag = true;
-
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
-		{
-			if (m_bHomingFlag[i])
-			{
-				bActionFlag = false;
-			}
-		}
-		
-		if (bActionFlag)
-		{
-			DLLSetJog(0, -1);
-		}
-		else
-		{
-			MessageBox(_T("All axis must be not at home mode!"));
-		}
-	}
-	else
-	{
-		MessageBox(_T("Axis 0 is not at idle mode!"));
-	}
+	DoJogAction(0, -1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogXRight()
 {
-	if (g_u32mode[0] == MODE_IDLE)
-	{
-		bool bActionFlag = true;
-
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
-		{
-			if (m_bHomingFlag[i])
-			{
-				bActionFlag = false;
-			}
-		}
-		
-		if (bActionFlag)
-		{
-			DLLSetJog(0, 1);
-		}
-		else
-		{
-			MessageBox(_T("All axis must be not at home mode!"));
-		}
-	}
-	else
-	{
-		MessageBox(_T("Axis 0 is not at idle mode!"));
-	}
+	DoJogAction(0, 1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYUp()
 {
-	if (g_u32mode[1] == MODE_IDLE)
-	{
-		bool bActionFlag = true;
-
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
-		{
-			if (m_bHomingFlag[i])
-			{
-				bActionFlag = false;
-			}
-		}
-		
-		if (bActionFlag)
-		{
-			DLLSetJog(1, 1);
-		}
-		else
-		{
-			MessageBox(_T("All axis must be not at home mode!"));
-		}
-	}
-	else
-	{
-		MessageBox(_T("Axis 1 is not at idle mode!"));
-	}
+	DoJogAction(1, 1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogYDown()
 {
-	if (g_u32mode[1] == MODE_IDLE)
-	{
-		bool bActionFlag = true;
-
-		for (int i = 0; i < TEST_SERVO_CNT; i++)
-		{
-			if (m_bHomingFlag[i])
-			{
-				bActionFlag = false;
-			}
-		}
-		
-		if (bActionFlag)
-		{
-			DLLSetJog(1, -1);
-		}
-		else
-		{
-			MessageBox(_T("All axis must be not at home mode!"));
-		}
-	}
-	else
-	{
-		MessageBox(_T("Axis 1 is not at idle mode!"));
-	}
+	DoJogAction(1, -1);
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendX()
 {
-	DLLSetJogEnd(0);
+	if (!m_bRunFileFlag)
+	{
+		DLLSetJogEnd(0);
+	}
+	else
+	{
+		MessageBox(_T("This axis is at run file mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonJogendY()
 {
-	DLLSetJogEnd(1);
+	if (!m_bRunFileFlag)
+	{
+		DLLSetJogEnd(1);
+	}
+	else
+	{
+		MessageBox(_T("This axis is at run file mode!"));
+	}
 }
 
 void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonSelectFile()
@@ -2265,77 +2236,89 @@ void CAPP_EtherCAT_Axis_ControlDlg::SetPeekMsg()
 	}
 }
 
-void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
+void CAPP_EtherCAT_Axis_ControlDlg::DoRunFileAction()
 {
-	//UpdateData(TRUE);
-	//if (m_dThetaMax > 30)
-	//{
-	//	MessageBox(_T("Max limit angle is 30 degree!"));
-	//	// DLL Get Limit angle
-	//	UpdateData(FALSE);
-	//}
-	//else
-	//{
-	//	// DLL Set Limit angle
-	//}
-	
-	if (m_strFilePath == _T(""))
+	if (!m_bRunFileFlag)
 	{
-		MessageBox(_T("Please select command file!"));
-	}
-	else
-	{
-		if (m_arrCmdArray[0].m_iID == BEGIN)
-		{	
-			int iCmdIndex, iCnt, iFwCmdIdx;
-			bool bBegPosFlagX, bBegPosFlagY;
-			bBegPosFlagX = false;
-			bBegPosFlagY = false;
-			
-			iCmdIndex = 0;
-			DLLSetMotion(0, m_arrCmdArray[iCmdIndex].m_dParams[0]);
-			DLLSetMotion(1, m_arrCmdArray[iCmdIndex].m_dParams[1]);
-			
-			m_bRunFileFlag = true;
-
-			while (!bBegPosFlagX || !bBegPosFlagY)
-			{
-				SetPeekMsg();
-				GetRunFileBeginPosFlag(0, &bBegPosFlagX);
-				GetRunFileBeginPosFlag(1, &bBegPosFlagY);
-			}
-
-			iCnt = 100;
-			if (m_arrCmdArray.GetSize() < iCnt)
-			{
-				iCnt = m_arrCmdArray.GetSize();
-			}
-
-			while (iCmdIndex < iCnt)
-			{
-				SetPeekMsg();
-				m_FileCmd = m_arrCmdArray[iCmdIndex];
-				SetRunFileCmd(iCmdIndex, m_FileCmd);
-				iCmdIndex++;
-			}
-
-			SetRunFile();
-
-			while (iCmdIndex < m_arrCmdArray.GetSize())
-			{
-				SetPeekMsg();
-				GetRunFileCmdIndex(&iFwCmdIdx);
-				if (iFwCmdIdx + 100 > iCmdIndex)
-				{
-					m_FileCmd = m_arrCmdArray[iCmdIndex];
-					SetRunFileCmd(iCmdIndex % 100, m_FileCmd);
-					iCmdIndex++;
-				}
-			}
+		UpdateData(TRUE);
+		if (m_dThetaMax > 30)
+		{
+			MessageBox(_T("Max limit angle is 30 degree!"));
+			GetRunFileLimAng(&m_dThetaMax);
+			UpdateData(FALSE);
 		}
 		else
 		{
-			MessageBox(_T("First cmd should be Begin!"));
+			SetRunFileLimAng(m_dThetaMax);
+		}
+		
+		if (m_strFilePath == _T(""))
+		{
+			MessageBox(_T("Please select command file!"));
+		}
+		else
+		{
+			if (m_arrCmdArray[0].m_iID == BEGIN)
+			{	
+				int iCmdIndex, iCnt, iFwCmdIdx;
+				bool bBegPosFlagX, bBegPosFlagY;
+				bBegPosFlagX = false;
+				bBegPosFlagY = false;
+				
+				iCmdIndex = 0;
+				DLLSetMotion(0, m_arrCmdArray[iCmdIndex].m_dParams[0]);
+				DLLSetMotion(1, m_arrCmdArray[iCmdIndex].m_dParams[1]);
+				
+				m_bRunFileFlag = true;
+
+				while (!bBegPosFlagX || !bBegPosFlagY)
+				{
+					SetPeekMsg();
+					GetRunFileBeginPosFlag(0, &bBegPosFlagX);
+					GetRunFileBeginPosFlag(1, &bBegPosFlagY);
+				}
+
+				iCnt = 100;
+				if (m_arrCmdArray.GetSize() < iCnt)
+				{
+					iCnt = m_arrCmdArray.GetSize();
+				}
+
+				while (iCmdIndex < iCnt)
+				{
+					SetPeekMsg();
+					m_FileCmd = m_arrCmdArray[iCmdIndex];
+					SetRunFileCmd(iCmdIndex, m_FileCmd);
+					iCmdIndex++;
+				}
+
+				SetRunFile();
+
+				while (iCmdIndex < m_arrCmdArray.GetSize())
+				{
+					SetPeekMsg();
+					GetRunFileCmdIndex(&iFwCmdIdx);
+					if (iFwCmdIdx + 100 > iCmdIndex)
+					{
+						m_FileCmd = m_arrCmdArray[iCmdIndex];
+						SetRunFileCmd(iCmdIndex % 100, m_FileCmd);
+						iCmdIndex++;
+					}
+				}
+			}
+			else
+			{
+				MessageBox(_T("First cmd should be Begin!"));
+			}
 		}
 	}
+	else
+	{
+		MessageBox(_T("Already at run file mode"));
+	}
+}
+
+void CAPP_EtherCAT_Axis_ControlDlg::OnBnClickedButtonRunFile()
+{
+	DoRunFileAction();
 }

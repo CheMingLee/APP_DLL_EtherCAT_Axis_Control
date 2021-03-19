@@ -29,3 +29,5 @@ SetRunFile @ 22
 GetRunFileBeginPosFlag @ 23
 GetRunFileCmdIndex @ 24
 SetRunFileCmd @ 25
+SetRunFileLimAng @ 26
+GetRunFileLimAng @ 27
