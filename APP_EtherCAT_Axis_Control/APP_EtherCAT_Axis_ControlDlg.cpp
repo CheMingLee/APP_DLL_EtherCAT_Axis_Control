@@ -2242,7 +2242,7 @@ void CAPP_EtherCAT_Axis_ControlDlg::ReadCommand()
 					m_FileCmd.m_dParams[iflag] = _tstof(strFileStr.SpanExcluding(_T(" ,\n")));
 					if (iflag < 4)
 					{
-						m_FileCmd.m_dParams[iflag] = m_FileCmd.m_dParams[iflag] * g_MotionParms[iflag].m_dAxisUnit;
+						m_FileCmd.m_dParams[iflag] = m_FileCmd.m_dParams[iflag] * g_MotionParms[iflag % 2].m_dAxisUnit;
 					}
 					strFileStr = strFileStr.TrimLeft(strFileStr.SpanExcluding(_T(" ,\n"))).TrimLeft(_T(" ,\n"));
 					iflag++;
